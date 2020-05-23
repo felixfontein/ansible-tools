@@ -1,0 +1,7 @@
+/changelogs/.plugin-cache.yaml
+/felixfontein-hosttech_dns-*.tar.gz
+/playground/
+/tests/output
+/tests/integration/integration_config.yml
+
+__pycache__

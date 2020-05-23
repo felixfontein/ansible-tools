@@ -1,0 +1,20 @@
+namespace: felixfontein
+name: tools
+version: 1.0.0
+readme: README.md
+authors:
+  - Felix Fontein (https://github.com/felixfontein)
+description: Useful tools
+license_file: COPYING
+tags:
+  - dependent loop
+dependencies: {}
+repository: https://github.com/felixfontein/ansible-tools
+documentation: https://github.com/felixfontein/ansible-tools/tree/master/README.md#included-content
+homepage: https://github.com/felixfontein/ansible-tools
+issues: https://github.com/felixfontein/ansible-tools/issues
+build_ignore:
+  - .gitignore
+  - felixfontein-tools-*.tar.gz
+  - changelogs/.plugin-cache.yaml
+  - tests/output
