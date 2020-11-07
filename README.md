@@ -4,6 +4,8 @@
 
 This collection provides some useful tools.
 
+You can find [documentation for this collection on my Ansible docsite](https://ansible.fontein.de/collections/felixfontein/tools/).
+
 ## Tested with Ansible
 
 Tested with both Ansible 2.9 and the current development version of Ansible.
@@ -13,6 +15,8 @@ Tested with both Ansible 2.9 and the current development version of Ansible.
 No requirements.
 
 ## Included content
+
+You can find [documentation for this collection on my Ansible docsite](https://ansible.fontein.de/collections/felixfontein/tools/).
 
 ### Dependent Lookup
 
@@ -73,6 +77,10 @@ See [Ansible Using collections](https://docs.ansible.com/ansible/latest/user_gui
 ## Release notes
 
 See [here](https://github.com/felixfontein/ansible-tools/tree/main/CHANGELOG.rst).
+
+## Running integration tests
+
+The CI (based on GitHub Actions) runs sanity and unit tests, but not integration tests. The integration tests need access to HostTech API credentials. If you have some, copy [`tests/integration/integration_config.yml.template`](https://github.com/felixfontein/ansible-hosttech_dns/blob/main/tests/integration/integration_config.yml.template) to `integration_config.yml` in the same directory, and insert username, key, a test zone (`domain.ch`) and test record (`foo.domain.ch`). Then run `ansible-test integration`. Please note that the test record will be deleted, (re-)created, and finally deleted, so do not use any record you actually need!
 
 ## More information
 
