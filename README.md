@@ -1,4 +1,6 @@
 # Felix's Tools
+[![CI](https://github.com/felixfontein/ansible-tools/workflows/CI/badge.svg?event=push)](https://github.com/felixfontein/ansible-tools/actions)
+[![Codecov](https://img.shields.io/codecov/c/github/felixfontein/ansible-tools)](https://codecov.io/gh/felixfontein/ansible-tools)
 
 This collection provides some useful tools.
 
