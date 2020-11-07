@@ -91,3 +91,17 @@
       - dependent.results[6].item.0.key == "b"
       - dependent.results[6].item.1 == 4
       - dependent.results[6].item.2 == "G"
+
+- name: "Test 5: failure"
+  debug:
+    msg: "{{ item.0 }} {{ item.1 }}"
+  with_felixfontein.tools.dependent:
+    - [1, 2]
+    - "[item.0 + foo]"
+  ignore_errors: true
+  register: eval_error
+
+- name: Check for failure
+  assert:
+    that:
+      - eval_error is failed

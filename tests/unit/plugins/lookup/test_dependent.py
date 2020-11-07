@@ -22,6 +22,9 @@ class TestLookupModule(TestCase):
         templar._loader = None
         self.lookup = lookup_loader.get("felixfontein.tools.dependent", templar=templar)
 
+    def test_empty(self):
+        self.assertListEqual(self.lookup.run([], None), [])
+
     def test_simple(self):
         self.assertListEqual(
             self.lookup.run(
@@ -31,7 +34,6 @@ class TestLookupModule(TestCase):
                     '[item.0 + item.1 * 10]',
                 ],
                 {},
-                **{}
             ),
             [
                 {0: 1, 1: 4, 2: 41},
