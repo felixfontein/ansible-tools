@@ -49,7 +49,7 @@ def dns_zone(domain):
 
 def dns_zone_prefix(domain, keep_trailing_period=False):
     '''Given domain name, returns the part before the zone name.'''
-    domain, _ = remove_trailing_period(domain)
+    domain, dummy = remove_trailing_period(domain)
     suffix = get_suffix(domain, PUBLIC_SUFFIX_LIST)
     last_dot_before_suffix = domain.rfind('.', 0, -len(suffix))
     if last_dot_before_suffix < 0:
@@ -65,7 +65,7 @@ def get_domain_suffix(domain):
 
 def remove_domain_suffix(domain):
     '''Given domain name, returns the part before the public suffix.'''
-    domain, _ = remove_trailing_period(domain)
+    domain, dummy = remove_trailing_period(domain)
     suffix = get_suffix(domain, PUBLIC_SUFFIX_LIST)
     return domain[:-len(suffix)]
 
