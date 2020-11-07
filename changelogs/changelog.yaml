@@ -21,3 +21,18 @@ releases:
     fragments:
     - 1.0.1.yml
     release_date: '2020-11-07'
+  1.1.0:
+    changes:
+      minor_changes:
+      - 'Added ``felixfontein.tools.path_join`` filter. For ansible-base 2.10 or newer,
+        it redirects to ``ansible.builtin.path_join``. For Ansible 2.9 and before,
+        it provides an own implementation for the most important case: joining a list
+        of path fragments.'
+      - Added filter plugins ``dns_zone``, ``dns_zone_prefix``, ``get_domain_suffix``
+        and ``remove_domain_suffix``.
+      release_summary: This release enables CI and adds several useful filters.
+    fragments:
+    - 1.1.0.yml
+    - domain-suffix.yml
+    - path_join-shim.yml
+    release_date: '2020-11-07'
