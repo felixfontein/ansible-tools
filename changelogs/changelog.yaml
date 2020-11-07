@@ -12,3 +12,12 @@ releases:
         name: felixfontein.tools.dependent
         namespace: null
     release_date: '2020-05-23'
+  1.0.1:
+    changes:
+      release_summary: 'Maintenance release for internal changes. Visible external
+        change is that the changelog moved one directory up.
+
+        '
+    fragments:
+    - 1.0.1.yml
+    release_date: '2020-11-07'

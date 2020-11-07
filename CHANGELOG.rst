@@ -1,8 +1,17 @@
-============================
-Felix's Tools  Release Notes
-============================
+===========================
+Felix's Tools Release Notes
+===========================
 
 .. contents:: Topics
+
+
+v1.0.1
+======
+
+Release Summary
+---------------
+
+Maintenance release for internal changes. Visible external change is that the changelog moved one directory up.
 
 
 v1.0.0
