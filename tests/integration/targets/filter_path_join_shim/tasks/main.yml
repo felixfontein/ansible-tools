@@ -1,0 +1,7 @@
+---
+- name: "Test path_join filter"
+  assert:
+    that:
+      - "['a', 'b'] | felixfontein.tools.path_join == 'a/b'"
+      - "['a', '/b'] | felixfontein.tools.path_join == '/b'"
+      - "[''] | felixfontein.tools.path_join == ''"
