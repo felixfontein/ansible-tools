@@ -1,0 +1,29 @@
+---
+- name: "Test dns_zone filter"
+  assert:
+    that:
+      - "'www.ansible.com' | felixfontein.tools.dns_zone == 'ansible.com'"
+      - "'www.ansible.com.' | felixfontein.tools.dns_zone == 'ansible.com.'"
+      - "'some.random.prefixes.ansible.co.uk' | felixfontein.tools.dns_zone == 'ansible.co.uk'"
+
+- name: "Test dns_zone_prefix filter"
+  assert:
+    that:
+      - "'www.ansible.com' | felixfontein.tools.dns_zone_prefix(keep_trailing_period=true) == 'www.'"
+      - "'www.ansible.com' | felixfontein.tools.dns_zone_prefix == 'www'"
+      - "'www.ansible.com.' | felixfontein.tools.dns_zone_prefix == 'www'"
+      - "'ansible.com.' | felixfontein.tools.dns_zone_prefix == ''"
+      - "'some.random.prefixes.ansible.co.uk' | felixfontein.tools.dns_zone_prefix == 'some.random.prefixes'"
+
+- name: "Test get_domain_suffix filter"
+  assert:
+    that:
+      - "'www.ansible.com' | felixfontein.tools.get_domain_suffix == '.com'"
+      - "'some.random.prefixes.ansible.co.uk' | felixfontein.tools.get_domain_suffix == '.co.uk'"
+      - "'no.known.suffixafdlkjsaflkjsaflkjslkjfds' | felixfontein.tools.get_domain_suffix == ''"
+
+- name: "Test remove_domain_suffix filter"
+  assert:
+    that:
+      - "'www.ansible.com' | felixfontein.tools.remove_domain_suffix == 'www.ansible'"
+      - "'some.random.prefixes.ansible.co.uk' | felixfontein.tools.remove_domain_suffix == 'some.random.prefixes.ansible'"

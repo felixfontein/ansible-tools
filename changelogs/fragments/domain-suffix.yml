@@ -1,0 +1,2 @@
+minor_changes:
+- "Added filter plugins ``dns_zone``, ``dns_zone_prefix``, ``get_domain_suffix`` and ``remove_domain_suffix``."
