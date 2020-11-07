@@ -74,6 +74,13 @@ ok: [localhost] => (item={0: 2, 1: 8, 2: 82}) => {
 }
 ```
 
+### Filters for working with domain names
+
+- `felixfontein.tools.dns_zone`: given a domain name, returns the DNS zone, i.e. the label before the public suffix and the public suffix. For example, `"www.ansible.com" | felixfontein.tools.dns_zone == "ansible.com"` and `"some.random.prefixes.ansible.co.uk" | felixfontein.tools.dns_zone == "ansible.co.uk"`.
+- `felixfontein.tools.dns_zone_prefix`: given a domain name, returns the part before the DNS zone. For example, `"www.ansible.com" | felixfontein.tools.dns_zone_prefix == "www"` and `"some.random.prefixes.ansible.co.uk" | felixfontein.tools.dns_zone_prefix == "some.random.prefixes"`.
+- `felixfontein.tools.get_domain_suffix`: given a domain name, returns the public suffix. For example, `"www.ansible.com" | felixfontein.tools.get_domain_suffix == ".com"` and `"some.random.prefixes.ansible.co.uk" | felixfontein.tools.get_domain_suffix == ".co.uk"`.
+- `felixfontein.tools.remove_domain_suffix`: given a domain name, returns the part before the public suffix. For example, `"www.ansible.com" | felixfontein.tools.remove_domain_suffix == "www.ansible"` and `"some.random.prefixes.ansible.co.uk" | felixfontein.tools.remove_domain_suffix == "some.random.prefixes.ansible"`.
+
 ## Using this collection
 
 See [Ansible Using collections](https://docs.ansible.com/ansible/latest/user_guide/collections_using.html) for more details.
@@ -95,6 +102,8 @@ The CI (based on GitHub Actions) runs sanity and unit tests, but not integration
 
 ## Licensing
 
-GNU General Public License v3.0 or later.
+All files except specifially noted are licensed under the GNU General Public License v3.0 or later.
 
 See [COPYING](https://www.gnu.org/licenses/gpl-3.0.txt) to see the full text.
+
+The only exception is `plugins/public_suffix_list.dat`, which is subject to the terms of the Mozilla Public License, v. 2.0. See [MPL](https://mozilla.org/MPL/2.0/) for the full text.
