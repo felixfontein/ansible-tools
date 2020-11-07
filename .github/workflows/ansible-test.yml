@@ -86,6 +86,10 @@ jobs:
       - name: Install ansible-base (${{ matrix.ansible }})
         run: pip install https://github.com/ansible/ansible/archive/${{ matrix.ansible }}.tar.gz --disable-pip-version-check
 
+      # Install dependencies
+      - name: Install collection dependencies
+        run: ansible-galaxy collection install community.internal_test_tools -p .
+
       # Run the unit tests
       - name: Run unit test
         run: ansible-test units -v --color --docker --coverage
