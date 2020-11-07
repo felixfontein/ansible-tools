@@ -12,6 +12,7 @@
       - "'www.ansible.com' | felixfontein.tools.dns_zone_prefix(keep_trailing_period=true) == 'www.'"
       - "'www.ansible.com' | felixfontein.tools.dns_zone_prefix == 'www'"
       - "'www.ansible.com.' | felixfontein.tools.dns_zone_prefix == 'www'"
+      - "'ansible.com.' | felixfontein.tools.dns_zone_prefix == ''"
       - "'some.random.prefixes.ansible.co.uk' | felixfontein.tools.dns_zone_prefix == 'some.random.prefixes'"
 
 - name: "Test get_domain_suffix filter"
