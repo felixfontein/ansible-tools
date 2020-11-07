@@ -18,6 +18,10 @@ No requirements.
 
 You can find [documentation for this collection on my Ansible docsite](https://ansible.fontein.de/collections/felixfontein/tools/).
 
+### Compatibilty shims
+
+- `felixfontein.tools.path_join`: shim which redirects to `ansible.builtin.path_join` for ansible-base 2.10 and newer, and provides a basic implementation for Ansible 2.9 and before. It supports joining a list of path fragments.
+
 ### Dependent Lookup
 
 A plugin which allows to do nested loops where the inner loops depend on the current `item` of the outer loops.
