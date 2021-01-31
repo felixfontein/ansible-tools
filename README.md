@@ -8,7 +8,7 @@ You can find [documentation for this collection on my Ansible docsite](https://a
 
 ## Tested with Ansible
 
-Tested with both Ansible 2.9 and the current development version of Ansible.
+This collection is tested with Ansible 2.9, ansible-base 2.10 and ansible-core's `devel` branch.
 
 ## External requirements
 
@@ -29,7 +29,7 @@ A plugin which allows to do nested loops where the inner loops depend on the cur
 This plugin allows you to write something like:
 
 ```yaml
-- debug:
+- ansible.builtin.debug:
     msg: "{{ item.0 }} {{ item.1 }} {{ item.2 }}"
   with_felixfontein.tools.dependent:
   - "[1, 2]"
@@ -89,9 +89,9 @@ See [Ansible Using collections](https://docs.ansible.com/ansible/latest/user_gui
 
 See [here](https://github.com/felixfontein/ansible-tools/tree/main/CHANGELOG.rst).
 
-## Running integration tests
+## Releasing, Deprecation and Versioning
 
-The CI (based on GitHub Actions) runs sanity and unit tests, but not integration tests. The integration tests need access to HostTech API credentials. If you have some, copy [`tests/integration/integration_config.yml.template`](https://github.com/felixfontein/ansible-hosttech_dns/blob/main/tests/integration/integration_config.yml.template) to `integration_config.yml` in the same directory, and insert username, key, a test zone (`domain.ch`) and test record (`foo.domain.ch`). Then run `ansible-test integration`. Please note that the test record will be deleted, (re-)created, and finally deleted, so do not use any record you actually need!
+We release new versions once there are new features or bugfixes. Deprecations can happen, and we try to announce them a long time in advance. We currently do not plan breaking changes, so there will be no new major release anytime soon.
 
 ## More information
 

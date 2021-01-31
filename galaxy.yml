@@ -9,6 +9,9 @@ license_file: COPYING
 tags:
   - dependent
   - loop
+  - path_join
+  - dns
+  - public_suffix
 dependencies: {}
 repository: https://github.com/felixfontein/ansible-tools
 documentation: https://github.com/felixfontein/ansible-tools/tree/main/README.md#included-content
