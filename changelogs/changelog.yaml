@@ -36,3 +36,10 @@ releases:
     - domain-suffix.yml
     - path_join-shim.yml
     release_date: '2020-11-07'
+  1.2.0:
+    changes:
+      minor_changes:
+      - Update Public Suffix List to latest version (https://github.com/felixfontein/ansible-tools/pull/4).
+    fragments:
+    - 4-update-psl.yml
+    release_date: '2021-01-31'
