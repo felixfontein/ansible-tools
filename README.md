@@ -1,5 +1,6 @@
 # Felix's Tools
-[![CI](https://github.com/felixfontein/ansible-tools/workflows/CI/badge.svg?event=push)](https://github.com/felixfontein/ansible-tools/actions)
+[![CI](https://github.com/felixfontein/ansible-tools/workflows/CI/badge.svg?event=push&branch=main)](https://github.com/felixfontein/ansible-tools/actions?query=workflow%3A%22CI%22+branch%3Amain)
+[![Public Suffix List up-to-date](https://github.com/felixfontein/ansible-tools/workflows/Check%20for%20Public%20Suffix%20List%20updates/badge.svg?branch=main)](https://github.com/felixfontein/ansible-tools/actions?query=workflow%3A%22Check+for+Public+Suffix+List+updates%22+branch%3Amain)
 [![Codecov](https://img.shields.io/codecov/c/github/felixfontein/ansible-tools)](https://codecov.io/gh/felixfontein/ansible-tools)
 
 This collection provides some useful tools.
