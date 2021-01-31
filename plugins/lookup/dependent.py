@@ -15,13 +15,20 @@ description:
 options:
   _raw:
     description:
-      - a set of lists
+      - A list where the elements are strings, lists, or dictionaries.
+      - Lists are simply iterated over.
+      - Dictionaries are iterated over and returned as if they would be processed by the
+        R(ansible.builtin.dict filter,ansible_collections.ansible.builtin.dict_filter).
+      - Strings are evaluated as Jinja2 expressions who can access the previously chosen
+        elements with C(item.<index>). The result must be a list of a dictionary.
+    type: list
+    elements: raw
     required: true
 """
 
 EXAMPLES = """
 - name: Install/remove public keys for active admin users
-  authorized_key:
+  ansible.posix.authorized_key:
     user: "{{ item.0.key }}"
     key: "{{ lookup('file', item.1.public_key) }}"
     state: "{{ 'present' if item.1.active else 'absent' }}"
@@ -56,7 +63,7 @@ EXAMPLES = """
         active: no
 
 - name: Update DNS records
-  route53:
+  community.aws.route53:
     zone: "{{ item.0.key }}"
     record: "{{ item.1.key ~ '.' if item.1.key else '' }}{{ item.0.key }}"
     type: "{{ item.2.key }}"
@@ -97,8 +104,16 @@ EXAMPLES = """
 RETURN = """
   _list:
     description:
-      - A list composed of lists paring the elements of the input lists or dictionaries
+      - A list composed of dictionaries whose keys are indices for the input list.
     type: list
+    elements: dict
+    sample:
+      - 0: a
+        1: test
+      - 0: a
+        1: foo
+      - 0: b
+        1: bar
 """
 
 from ansible.plugins.lookup import LookupBase
