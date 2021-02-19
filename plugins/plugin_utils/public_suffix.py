@@ -6,6 +6,10 @@ __metaclass__ = type
 import os.path
 
 
+class InvalidDomainName(Exception):
+    pass
+
+
 def split_into_labels(domain):
     '''
     Split domain in a list of labels. Start with the top-most label.
@@ -20,7 +24,10 @@ def split_into_labels(domain):
         tail = '.'
     while index >= 0:
         next_index = domain.rfind('.', 0, index)
-        result.append(domain[next_index + 1:index])
+        label = domain[next_index + 1:index]
+        if label == '':
+            raise InvalidDomainName(domain)
+        result.append(label)
         index = next_index
     return result, tail
 
@@ -113,10 +120,15 @@ class PublicSuffixList(object):
         # Return result
         return suffix_length, rule
 
-    def get_suffix(self, domain, keep_unknown_suffix=True):
+    def get_suffix(self, domain, keep_unknown_suffix=True, normalize_result=False):
         # Split into labels and normalize
-        labels, tail = split_into_labels(domain)
+        try:
+            labels, tail = split_into_labels(domain)
+        except InvalidDomainName:
+            return ''
         normalized_labels = [normalize_label(label) for label in labels]
+        if normalize_result:
+            labels = normalized_labels
 
         # Get suffix length
         suffix_length, rule = self.get_suffix_length_and_rule(normalized_labels)
@@ -124,17 +136,26 @@ class PublicSuffixList(object):
             suffix_length = 0
         return '.'.join(reversed(labels[:suffix_length])) + tail
 
-    def get_registrable_domain(self, domain, keep_unknown_suffix=True):
+    def get_registrable_domain(self, domain, keep_unknown_suffix=True, only_if_registerable=True, normalize_result=False):
         # Split into labels and normalize
-        labels, tail = split_into_labels(domain)
+        try:
+            labels, tail = split_into_labels(domain)
+        except InvalidDomainName:
+            return ''
         normalized_labels = [normalize_label(label) for label in labels]
+        if normalize_result:
+            labels = normalized_labels
 
         # Get suffix length
         suffix_length, rule = self.get_suffix_length_and_rule(normalized_labels)
         if not keep_unknown_suffix and rule is self._generic_rule:
             suffix_length = 0
+            tail = ''
         if suffix_length < len(labels):
             suffix_length += 1
+        elif only_if_registerable:
+            suffix_length = 0
+            tail = ''
         return '.'.join(reversed(labels[:suffix_length])) + tail
 
 
