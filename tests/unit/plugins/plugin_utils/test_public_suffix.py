@@ -96,10 +96,10 @@ TEST_SUFFIX_OFFICIAL_TESTS = [
     ('b.example.example', 'example.example', False),
     ('a.b.example.example', 'example.example', False),
     # Listed, but non-Internet, TLD.
-    #('local', '', False),
-    #('example.local', '', False),
-    #('b.example.local', '', False),
-    #('a.b.example.local', '', False),
+    # ('local', '', False),
+    # ('example.local', '', False),
+    # ('b.example.local', '', False),
+    # ('a.b.example.local', '', False),
     # TLD with only 1 rule.
     ('biz', '', False),
     ('domain.biz', 'domain.biz', False),
@@ -165,15 +165,15 @@ TEST_SUFFIX_OFFICIAL_TESTS = [
     ('shishi.中国', 'shishi.中国', False),
     ('中国', '', False),
     # Same as above, but punycoded.  (TODO: punycode not supported yet!)
-    #('xn--85x722f.com.cn', 'xn--85x722f.com.cn', False),
-    #('xn--85x722f.xn--55qx5d.cn', 'xn--85x722f.xn--55qx5d.cn', False),
-    #('www.xn--85x722f.xn--55qx5d.cn', 'xn--85x722f.xn--55qx5d.cn', False),
-    #('shishi.xn--55qx5d.cn', 'shishi.xn--55qx5d.cn', False),
-    #('xn--55qx5d.cn', '', False),
-    #('xn--85x722f.xn--fiqs8s', 'xn--85x722f.xn--fiqs8s', False),
-    #('www.xn--85x722f.xn--fiqs8s', 'xn--85x722f.xn--fiqs8s', False),
-    #('shishi.xn--fiqs8s', 'shishi.xn--fiqs8s', False),
-    #('xn--fiqs8s', '', False),
+    # ('xn--85x722f.com.cn', 'xn--85x722f.com.cn', False),
+    # ('xn--85x722f.xn--55qx5d.cn', 'xn--85x722f.xn--55qx5d.cn', False),
+    # ('www.xn--85x722f.xn--55qx5d.cn', 'xn--85x722f.xn--55qx5d.cn', False),
+    # ('shishi.xn--55qx5d.cn', 'shishi.xn--55qx5d.cn', False),
+    # ('xn--55qx5d.cn', '', False),
+    # ('xn--85x722f.xn--fiqs8s', 'xn--85x722f.xn--fiqs8s', False),
+    # ('www.xn--85x722f.xn--fiqs8s', 'xn--85x722f.xn--fiqs8s', False),
+    # ('shishi.xn--fiqs8s', 'shishi.xn--fiqs8s', False),
+    # ('xn--fiqs8s', '', False),
 ]
 # End of public domain test data
 # -------------------------------------------------------------------------------------------------
