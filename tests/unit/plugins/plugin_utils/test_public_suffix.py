@@ -15,8 +15,10 @@ __metaclass__ = type
 import pytest
 
 from ansible_collections.felixfontein.tools.plugins.plugin_utils.public_suffix import (
+    is_idn,
     normalize_label,
     split_into_labels,
+    HAS_IDNA,
     InvalidDomainName,
     PUBLIC_SUFFIX_LIST,
 )
@@ -168,15 +170,15 @@ TEST_SUFFIX_OFFICIAL_TESTS = [
     ('shishi.中国', 'shishi.中国', False),
     ('中国', '', False),
     # Same as above, but punycoded.  (TODO: punycode not supported yet!)
-    # ('xn--85x722f.com.cn', 'xn--85x722f.com.cn', False),
-    # ('xn--85x722f.xn--55qx5d.cn', 'xn--85x722f.xn--55qx5d.cn', False),
-    # ('www.xn--85x722f.xn--55qx5d.cn', 'xn--85x722f.xn--55qx5d.cn', False),
-    # ('shishi.xn--55qx5d.cn', 'shishi.xn--55qx5d.cn', False),
-    # ('xn--55qx5d.cn', '', False),
-    # ('xn--85x722f.xn--fiqs8s', 'xn--85x722f.xn--fiqs8s', False),
-    # ('www.xn--85x722f.xn--fiqs8s', 'xn--85x722f.xn--fiqs8s', False),
-    # ('shishi.xn--fiqs8s', 'shishi.xn--fiqs8s', False),
-    # ('xn--fiqs8s', '', False),
+    ('xn--85x722f.com.cn', 'xn--85x722f.com.cn', False),
+    ('xn--85x722f.xn--55qx5d.cn', 'xn--85x722f.xn--55qx5d.cn', False),
+    ('www.xn--85x722f.xn--55qx5d.cn', 'xn--85x722f.xn--55qx5d.cn', False),
+    ('shishi.xn--55qx5d.cn', 'shishi.xn--55qx5d.cn', False),
+    ('xn--55qx5d.cn', '', False),
+    ('xn--85x722f.xn--fiqs8s', 'xn--85x722f.xn--fiqs8s', False),
+    ('www.xn--85x722f.xn--fiqs8s', 'xn--85x722f.xn--fiqs8s', False),
+    ('shishi.xn--fiqs8s', 'shishi.xn--fiqs8s', False),
+    ('xn--fiqs8s', '', False),
 ]
 # End of public domain test data
 # -------------------------------------------------------------------------------------------------
@@ -184,6 +186,8 @@ TEST_SUFFIX_OFFICIAL_TESTS = [
 
 @pytest.mark.parametrize("domain, registrable_domain, normalize_result", TEST_SUFFIX_OFFICIAL_TESTS)
 def test_get_suffix_official(domain, registrable_domain, normalize_result):
+    if is_idn(domain) and not HAS_IDNA:
+        pytest.skip('Need `idna` to run test with IDN')
     reg_domain = PUBLIC_SUFFIX_LIST.get_registrable_domain(domain, normalize_result=normalize_result)
     print(reg_domain)
     assert reg_domain == registrable_domain

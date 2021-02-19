@@ -4,6 +4,25 @@ from __future__ import absolute_import, division, print_function
 __metaclass__ = type
 
 import os.path
+import re
+
+try:
+    import idna
+except ImportError as imp_exc:
+    HAS_IDNA = False
+    IDNA_IMPORT_ERROR = imp_exc
+else:
+    HAS_IDNA = True
+
+from ansible.errors import AnsibleError
+from ansible.module_utils.six import raise_from
+
+
+_NO_IDN_MATCHER = re.compile(r'^[a-zA-Z0-9.-]+$')
+
+
+def is_idn(domain):
+    return _NO_IDN_MATCHER.match(domain) is None
 
 
 class InvalidDomainName(Exception):
@@ -33,7 +52,12 @@ def split_into_labels(domain):
 
 
 def normalize_label(label):
-    # FIXME: handle IDNs / Punycode
+    if label not in ('', '*') and is_idn(label):
+        if not HAS_IDNA:
+            raise_from(
+                AnsibleError('Cannot handle International Domain Names (IDNs) if `idna` is not installed'),
+                IDNA_IMPORT_ERROR)
+        label = idna.encode(label).decode('utf-8')
     return label.lower()
 
 
