@@ -25,7 +25,7 @@ def split_into_labels(domain):
     while index >= 0:
         next_index = domain.rfind('.', 0, index)
         label = domain[next_index + 1:index]
-        if label == '':
+        if label == '' or label[0] == '-' or label[-1] == '-':
             raise InvalidDomainName(domain)
         result.append(label)
         index = next_index
@@ -124,9 +124,9 @@ class PublicSuffixList(object):
         # Split into labels and normalize
         try:
             labels, tail = split_into_labels(domain)
+            normalized_labels = [normalize_label(label) for label in labels]
         except InvalidDomainName:
             return ''
-        normalized_labels = [normalize_label(label) for label in labels]
         if normalize_result:
             labels = normalized_labels
 
@@ -140,9 +140,9 @@ class PublicSuffixList(object):
         # Split into labels and normalize
         try:
             labels, tail = split_into_labels(domain)
+            normalized_labels = [normalize_label(label) for label in labels]
         except InvalidDomainName:
             return ''
-        normalized_labels = [normalize_label(label) for label in labels]
         if normalize_result:
             labels = normalized_labels
 

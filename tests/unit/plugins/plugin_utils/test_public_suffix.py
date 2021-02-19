@@ -40,6 +40,9 @@ def test_split_into_labels(domain, labels, tail):
 TEST_LABEL_SPLIT_ERRORS = [
     '.bar.',
     '..bar',
+    '-bar',
+    'bar-',
+    '',
 ]
 
 
@@ -180,7 +183,7 @@ TEST_SUFFIX_OFFICIAL_TESTS = [
 
 
 @pytest.mark.parametrize("domain, registrable_domain, normalize_result", TEST_SUFFIX_OFFICIAL_TESTS)
-def test_get_suffix(domain, registrable_domain, normalize_result):
+def test_get_suffix_official(domain, registrable_domain, normalize_result):
     reg_domain = PUBLIC_SUFFIX_LIST.get_registrable_domain(domain, normalize_result=normalize_result)
     print(reg_domain)
     assert reg_domain == registrable_domain
