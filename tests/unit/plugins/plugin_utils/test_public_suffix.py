@@ -26,6 +26,7 @@ TEST_LABEL_SPLIT = [
     ('☺.A', ['A', '☺'], ''),
 ]
 
+
 @pytest.mark.parametrize("domain, labels, tail", TEST_LABEL_SPLIT)
 def test_split_into_labels(domain, labels, tail):
     _labels, _tail = split_into_labels(domain)
@@ -40,6 +41,7 @@ TEST_LABEL_NORMALIZE = [
     ('Foo', 'foo'),
 ]
 
+
 @pytest.mark.parametrize("label, normalized_label", TEST_LABEL_NORMALIZE)
 def test_normalize_label(label, normalized_label):
     assert normalize_label(label) == normalized_label
@@ -49,6 +51,7 @@ TEST_GET_SUFFIX = [
     ('foo.com', 'com', 'foo.com'),
     ('bar.foo.com.', 'com.', 'foo.com.'),
 ]
+
 
 @pytest.mark.parametrize("domain, suffix, reg_domain", TEST_GET_SUFFIX)
 def test_get_suffix(domain, suffix, reg_domain):
