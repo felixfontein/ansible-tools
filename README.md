@@ -95,6 +95,8 @@ See [here](https://github.com/felixfontein/ansible-tools/tree/main/CHANGELOG.rst
 
 We release new versions once there are new features or bugfixes. Deprecations can happen, and we try to announce them a long time in advance. We currently do not plan breaking changes, so there will be no new major release anytime soon.
 
+Please note that we consider updates to the Public Suffix List as bugfixes. While we update the copy of the Public Suffix List often, we do not create a bugfix release for every change. Please create an issue to request an update if you think the last update was too long ago.
+
 ## Contributing
 
 Please create issues to report problems or request new features, and create PRs to fix bugs or add new features. If you want to do a refactoring PR, please create an issue first to discuss the refactoring.
