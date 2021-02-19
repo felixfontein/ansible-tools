@@ -1,0 +1,4 @@
+minor_changes:
+- >-
+  The public suffix list (PSL) matching algorithm as specified on https://publicsuffix.org/list/ is now used.
+  The only difference right now is that we do not handle International Domain Names (IDNs) correctly.
