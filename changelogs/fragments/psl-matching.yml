@@ -1,3 +1,2 @@
 minor_changes:
-- >-
-  The public suffix list (PSL) matching algorithm as specified on https://publicsuffix.org/list/ is now used.
+- "The public suffix list (PSL) matching algorithm as specified on https://publicsuffix.org/list/ is now used."
