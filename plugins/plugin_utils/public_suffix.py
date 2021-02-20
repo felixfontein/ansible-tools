@@ -6,16 +6,17 @@ __metaclass__ = type
 import os.path
 import re
 
-from ansible.errors import AnsibleError
-from ansible.module_utils.six import raise_from
 from ansible.module_utils._text import to_text
 
 
-_NO_IDN_MATCHER = re.compile(r'^[a-zA-Z0-9.-]+$')
+_ONLY_ALABELS_MATCHER = re.compile(r'^[a-zA-Z0-9.-]+$')
 
 
-def is_idn(domain):
-    return _NO_IDN_MATCHER.match(domain) is None
+def only_alabels(domain):
+    '''
+    Check whether domain name has only alabels.
+    '''
+    return _ONLY_ALABELS_MATCHER.match(domain) is not None
 
 
 class InvalidDomainName(Exception):
@@ -53,7 +54,7 @@ def normalize_label(label):
     '''
     Normalize a domain label. Returns a lower-case alabel.
     '''
-    if label not in ('', '*') and is_idn(label):
+    if label not in ('', '*') and not only_alabels(label):
         # Convert ulabel to alabel
         label = to_text(b'xn--' + to_text(label).encode('punycode'))
     # Always convert to lower-case
@@ -78,7 +79,7 @@ class PublicSuffixEntry(object):
             return False
         for i, label in enumerate(self.labels):
             normalized_label = normalized_labels[i]
-            if normalized_label != label and label != '*':
+            if label not in (normalized_label, '*'):
                 return False
         return True
 
@@ -116,8 +117,8 @@ class PublicSuffixList(object):
         '''
         rules = []
         part = None
-        with open(filename, 'rb') as f:
-            content = f.read().decode('utf-8')
+        with open(filename, 'rb') as content_file:
+            content = content_file.read().decode('utf-8')
         for line in content.splitlines():
             line = line.strip()
             if line.startswith('//') or not line:
