@@ -9,7 +9,7 @@ import re
 from ansible.module_utils._text import to_text
 
 
-_ONLY_ALABELS_MATCHER = re.compile(r'^[a-zA-Z0-9.-]+$')
+_ONLY_ALABELS_MATCHER = re.compile(r'^[a-zA-Z0-9.-]*$')
 
 
 def only_alabels(domain):

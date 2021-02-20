@@ -15,12 +15,25 @@ __metaclass__ = type
 import pytest
 
 from ansible_collections.felixfontein.tools.plugins.plugin_utils.public_suffix import (
-    is_idn,
+    only_alabels,
     normalize_label,
     split_into_labels,
     InvalidDomainName,
     PUBLIC_SUFFIX_LIST,
 )
+
+
+TEST_ONLY_ALABELS = [
+    ('asdf', True),
+    ('', True),
+    ('ä', False),
+    ('☹', False),
+]
+
+
+@pytest.mark.parametrize("domain, result", TEST_ONLY_ALABELS)
+def test_only_alabels(domain, result):
+    assert only_alabels(domain) == result
 
 
 TEST_LABEL_SPLIT = [
