@@ -15,13 +15,25 @@ __metaclass__ = type
 import pytest
 
 from ansible_collections.felixfontein.tools.plugins.plugin_utils.public_suffix import (
-    is_idn,
+    only_alabels,
     normalize_label,
     split_into_labels,
-    HAS_IDNA,
     InvalidDomainName,
     PUBLIC_SUFFIX_LIST,
 )
+
+
+TEST_ONLY_ALABELS = [
+    ('asdf', True),
+    ('', True),
+    ('ä', False),
+    ('☹', False),
+]
+
+
+@pytest.mark.parametrize("domain, result", TEST_ONLY_ALABELS)
+def test_only_alabels(domain, result):
+    assert only_alabels(domain) == result
 
 
 TEST_LABEL_SPLIT = [
@@ -64,23 +76,15 @@ TEST_LABEL_NORMALIZE = [
     ('Foo', 'foo'),
     (u'hëllö', 'xn--hll-jma1d'),
     (u'食狮', 'xn--85x722f'),
+    (u'☺', 'xn--74h'),
+    (u'😉', 'xn--n28h'),
 ]
 
 
 @pytest.mark.parametrize("label, normalized_label", TEST_LABEL_NORMALIZE)
 def test_normalize_label(label, normalized_label):
+    print(normalize_label(label))
     assert normalize_label(label) == normalized_label
-
-
-TEST_LABEL_NORMALIZE_ERROR = [
-    u'☺',
-]
-
-
-@pytest.mark.parametrize("label", TEST_LABEL_NORMALIZE_ERROR)
-def test_normalize_label_error(label):
-    with pytest.raises(InvalidDomainName):
-        normalize_label(label)
 
 
 TEST_GET_SUFFIX = [
@@ -104,6 +108,8 @@ TEST_GET_SUFFIX = [
     ('a-.com', {}, {}, '', ''),  # invalid domain name (trailing dash in label)
     ('-.com', {}, {}, '', ''),  # invalid domain name (leading and trailing dash in label)
     ('.com', {}, {}, '', ''),  # invalid domain name (empty label)
+    ('test.cloudfront.net', {}, {}, 'cloudfront.net', 'test.cloudfront.net'),  # private rule
+    ('test.cloudfront.net', {'icann_only': True}, {}, 'net', 'cloudfront.net'),
 ]
 
 
@@ -223,7 +229,5 @@ TEST_SUFFIX_OFFICIAL_TESTS = [
 
 @pytest.mark.parametrize("domain, registrable_domain, kwargs", TEST_SUFFIX_OFFICIAL_TESTS)
 def test_get_suffix_official(domain, registrable_domain, kwargs):
-    if is_idn(domain) and not HAS_IDNA:
-        pytest.skip('Need `idna` to run test with IDN')
     reg_domain = PUBLIC_SUFFIX_LIST.get_registrable_domain(domain, **kwargs)
     assert reg_domain == registrable_domain
