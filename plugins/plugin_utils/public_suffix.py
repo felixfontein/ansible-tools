@@ -47,13 +47,14 @@ def split_into_labels(domain):
     if domain.endswith('.'):
         index -= 1
         tail = '.'
-    while index >= 0:
-        next_index = domain.rfind('.', 0, index)
-        label = domain[next_index + 1:index]
-        if label == '' or label[0] == '-' or label[-1] == '-':
-            raise InvalidDomainName(domain)
-        result.append(label)
-        index = next_index
+    if index > 0:
+        while index >= 0:
+            next_index = domain.rfind('.', 0, index)
+            label = domain[next_index + 1:index]
+            if label == '' or label[0] == '-' or label[-1] == '-':
+                raise InvalidDomainName(domain)
+            result.append(label)
+            index = next_index
     return result, tail
 
 
@@ -61,7 +62,10 @@ def normalize_label(label):
     if label not in ('', '*') and is_idn(label):
         if not HAS_IDNA:
             raise_from(IDNANotInstalled(), IDNA_IMPORT_ERROR)
-        label = to_text(idna.encode(label))
+        try:
+            label = to_text(idna.encode(label))
+        except idna.core.IDNAError as exc:
+            raise_from(InvalidDomainName(label), exc)
     return label.lower()
 
 
@@ -165,6 +169,8 @@ class PublicSuffixList(object):
 
         # Get suffix length
         suffix_length, rule = self.get_suffix_length_and_rule(normalized_labels)
+        if rule is None:
+            return ''
         if not keep_unknown_suffix and rule is self._generic_rule:
             return ''
         return '.'.join(reversed(labels[:suffix_length])) + tail
@@ -181,6 +187,8 @@ class PublicSuffixList(object):
 
         # Get suffix length
         suffix_length, rule = self.get_suffix_length_and_rule(normalized_labels)
+        if rule is None:
+            return ''
         if not keep_unknown_suffix and rule is self._generic_rule:
             return ''
         if suffix_length < len(labels):

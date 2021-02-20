@@ -25,10 +25,14 @@ from ansible_collections.felixfontein.tools.plugins.plugin_utils.public_suffix i
 
 
 TEST_LABEL_SPLIT = [
+    ('', [], ''),
+    ('.', [], '.'),
+    ('com', ['com'], ''),
+    ('com.', ['com'], '.'),
     ('foo.bar', ['bar', 'foo'], ''),
     ('foo.bar.', ['bar', 'foo'], '.'),
     ('*.bar.', ['bar', '*'], '.'),
-    ('☺.A', ['A', '☺'], ''),
+    (u'☺.A', ['A', u'☺'], ''),
 ]
 
 
@@ -44,7 +48,6 @@ TEST_LABEL_SPLIT_ERRORS = [
     '..bar',
     '-bar',
     'bar-',
-    '',
 ]
 
 
@@ -59,12 +62,25 @@ TEST_LABEL_NORMALIZE = [
     ('*', '*'),
     ('foo', 'foo'),
     ('Foo', 'foo'),
+    (u'hëllö', 'xn--hll-jma1d'),
+    (u'食狮', 'xn--85x722f'),
 ]
 
 
 @pytest.mark.parametrize("label, normalized_label", TEST_LABEL_NORMALIZE)
 def test_normalize_label(label, normalized_label):
     assert normalize_label(label) == normalized_label
+
+
+TEST_LABEL_NORMALIZE_ERROR = [
+    u'☺',
+]
+
+
+@pytest.mark.parametrize("label", TEST_LABEL_NORMALIZE_ERROR)
+def test_normalize_label_error(label):
+    with pytest.raises(InvalidDomainName):
+        normalize_label(label)
 
 
 TEST_GET_SUFFIX = [
@@ -210,5 +226,4 @@ def test_get_suffix_official(domain, registrable_domain, kwargs):
     if is_idn(domain) and not HAS_IDNA:
         pytest.skip('Need `idna` to run test with IDN')
     reg_domain = PUBLIC_SUFFIX_LIST.get_registrable_domain(domain, **kwargs)
-    print(reg_domain)
     assert reg_domain == registrable_domain
