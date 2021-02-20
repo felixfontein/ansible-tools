@@ -166,7 +166,7 @@ class PublicSuffixList(object):
         # Get suffix length
         suffix_length, rule = self.get_suffix_length_and_rule(normalized_labels)
         if not keep_unknown_suffix and rule is self._generic_rule:
-            suffix_length = 0
+            return ''
         return '.'.join(reversed(labels[:suffix_length])) + tail
 
     def get_registrable_domain(self, domain, keep_unknown_suffix=True, only_if_registerable=True, normalize_result=False):
@@ -182,13 +182,11 @@ class PublicSuffixList(object):
         # Get suffix length
         suffix_length, rule = self.get_suffix_length_and_rule(normalized_labels)
         if not keep_unknown_suffix and rule is self._generic_rule:
-            suffix_length = 0
-            tail = ''
+            return ''
         if suffix_length < len(labels):
             suffix_length += 1
         elif only_if_registerable:
-            suffix_length = 0
-            tail = ''
+            return ''
         return '.'.join(reversed(labels[:suffix_length])) + tail
 
 

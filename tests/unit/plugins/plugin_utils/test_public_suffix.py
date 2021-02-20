@@ -68,15 +68,29 @@ def test_normalize_label(label, normalized_label):
 
 
 TEST_GET_SUFFIX = [
-    ('foo.com', 'com', 'foo.com'),
-    ('bar.foo.com.', 'com.', 'foo.com.'),
+    ('foo.com', {}, 'com', 'foo.com'),
+    ('bar.foo.com.', {}, 'com.', 'foo.com.'),
+    ('BaR.fOo.CoM.', {'normalize_result': True}, 'com.', 'foo.com.'),
+    ('BaR.fOo.CoM.', {}, 'CoM.', 'fOo.CoM.'),
+    ('com', {}, 'com', ''),
+    ('com', {'keep_unknown_suffix': False}, 'com', ''),
+    ('foo.com', {}, 'com', 'foo.com'),
+    ('foo.com', {'keep_unknown_suffix': False}, 'com', 'foo.com'),
+    ('foobarbaz', {}, 'foobarbaz', ''),
+    ('foobarbaz', {'keep_unknown_suffix': False}, '', ''),
+    ('foo.foobarbaz', {}, 'foobarbaz', 'foo.foobarbaz'),
+    ('foo.foobarbaz', {'keep_unknown_suffix': False}, '', ''),
+    ('-a.com', {}, '', ''),  # invalid domain name (leading dash in label)
+    ('a-.com', {}, '', ''),  # invalid domain name (trailing dash in label)
+    ('-.com', {}, '', ''),  # invalid domain name (leading and trailing dash in label)
+    ('.com', {}, '', ''),  # invalid domain name (empty label)
 ]
 
 
-@pytest.mark.parametrize("domain, suffix, reg_domain", TEST_GET_SUFFIX)
-def test_get_suffix(domain, suffix, reg_domain):
-    assert PUBLIC_SUFFIX_LIST.get_suffix(domain) == suffix
-    assert PUBLIC_SUFFIX_LIST.get_registrable_domain(domain) == reg_domain
+@pytest.mark.parametrize("domain, kwargs, suffix, reg_domain", TEST_GET_SUFFIX)
+def test_get_suffix(domain, kwargs, suffix, reg_domain):
+    assert PUBLIC_SUFFIX_LIST.get_suffix(domain, **kwargs) == suffix
+    assert PUBLIC_SUFFIX_LIST.get_registrable_domain(domain, **kwargs) == reg_domain
 
 
 # -------------------------------------------------------------------------------------------------
@@ -85,109 +99,111 @@ def test_get_suffix(domain, suffix, reg_domain):
 # This list has been provided by Rob Stradling of Comodo (see last section on https://publicsuffix.org/list/).
 TEST_SUFFIX_OFFICIAL_TESTS = [
     # '' input.
-    ('', '', False),
+    ('', '', {}),
     # Mixed case.
-    ('COM', '', False),
-    ('example.COM', 'example.com', True),
-    ('WwW.example.COM', 'example.com', True),
+    ('COM', '', {}),
+    ('example.COM', 'example.com', {'normalize_result': True}),
+    ('WwW.example.COM', 'example.com', {'normalize_result': True}),
+    ('example.COM', 'example.COM', {}),
+    ('WwW.example.COM', 'example.COM', {}),
     # Leading dot.
-    ('.com', '', False),
-    ('.example', '', False),
-    ('.example.com', '', False),
-    ('.example.example', '', False),
+    ('.com', '', {}),
+    ('.example', '', {}),
+    ('.example.com', '', {}),
+    ('.example.example', '', {}),
     # Unlisted TLD.
-    ('example', '', False),
-    ('example.example', 'example.example', False),
-    ('b.example.example', 'example.example', False),
-    ('a.b.example.example', 'example.example', False),
+    ('example', '', {}),
+    ('example.example', 'example.example', {}),
+    ('b.example.example', 'example.example', {}),
+    ('a.b.example.example', 'example.example', {}),
     # Listed, but non-Internet, TLD.
-    # ('local', '', False),
-    # ('example.local', '', False),
-    # ('b.example.local', '', False),
-    # ('a.b.example.local', '', False),
+    # ('local', '', {}),
+    # ('example.local', '', {}),
+    # ('b.example.local', '', {}),
+    # ('a.b.example.local', '', {}),
     # TLD with only 1 rule.
-    ('biz', '', False),
-    ('domain.biz', 'domain.biz', False),
-    ('b.domain.biz', 'domain.biz', False),
-    ('a.b.domain.biz', 'domain.biz', False),
+    ('biz', '', {}),
+    ('domain.biz', 'domain.biz', {}),
+    ('b.domain.biz', 'domain.biz', {}),
+    ('a.b.domain.biz', 'domain.biz', {}),
     # TLD with some 2-level rules.
-    ('com', '', False),
-    ('example.com', 'example.com', False),
-    ('b.example.com', 'example.com', False),
-    ('a.b.example.com', 'example.com', False),
-    ('uk.com', '', False),
-    ('example.uk.com', 'example.uk.com', False),
-    ('b.example.uk.com', 'example.uk.com', False),
-    ('a.b.example.uk.com', 'example.uk.com', False),
-    ('test.ac', 'test.ac', False),
+    ('com', '', {}),
+    ('example.com', 'example.com', {}),
+    ('b.example.com', 'example.com', {}),
+    ('a.b.example.com', 'example.com', {}),
+    ('uk.com', '', {}),
+    ('example.uk.com', 'example.uk.com', {}),
+    ('b.example.uk.com', 'example.uk.com', {}),
+    ('a.b.example.uk.com', 'example.uk.com', {}),
+    ('test.ac', 'test.ac', {}),
     # TLD with only 1 (wildcard) rule.
-    ('mm', '', False),
-    ('c.mm', '', False),
-    ('b.c.mm', 'b.c.mm', False),
-    ('a.b.c.mm', 'b.c.mm', False),
+    ('mm', '', {}),
+    ('c.mm', '', {}),
+    ('b.c.mm', 'b.c.mm', {}),
+    ('a.b.c.mm', 'b.c.mm', {}),
     # More complex TLD.
-    ('jp', '', False),
-    ('test.jp', 'test.jp', False),
-    ('www.test.jp', 'test.jp', False),
-    ('ac.jp', '', False),
-    ('test.ac.jp', 'test.ac.jp', False),
-    ('www.test.ac.jp', 'test.ac.jp', False),
-    ('kyoto.jp', '', False),
-    ('test.kyoto.jp', 'test.kyoto.jp', False),
-    ('ide.kyoto.jp', '', False),
-    ('b.ide.kyoto.jp', 'b.ide.kyoto.jp', False),
-    ('a.b.ide.kyoto.jp', 'b.ide.kyoto.jp', False),
-    ('c.kobe.jp', '', False),
-    ('b.c.kobe.jp', 'b.c.kobe.jp', False),
-    ('a.b.c.kobe.jp', 'b.c.kobe.jp', False),
-    ('city.kobe.jp', 'city.kobe.jp', False),
-    ('www.city.kobe.jp', 'city.kobe.jp', False),
+    ('jp', '', {}),
+    ('test.jp', 'test.jp', {}),
+    ('www.test.jp', 'test.jp', {}),
+    ('ac.jp', '', {}),
+    ('test.ac.jp', 'test.ac.jp', {}),
+    ('www.test.ac.jp', 'test.ac.jp', {}),
+    ('kyoto.jp', '', {}),
+    ('test.kyoto.jp', 'test.kyoto.jp', {}),
+    ('ide.kyoto.jp', '', {}),
+    ('b.ide.kyoto.jp', 'b.ide.kyoto.jp', {}),
+    ('a.b.ide.kyoto.jp', 'b.ide.kyoto.jp', {}),
+    ('c.kobe.jp', '', {}),
+    ('b.c.kobe.jp', 'b.c.kobe.jp', {}),
+    ('a.b.c.kobe.jp', 'b.c.kobe.jp', {}),
+    ('city.kobe.jp', 'city.kobe.jp', {}),
+    ('www.city.kobe.jp', 'city.kobe.jp', {}),
     # TLD with a wildcard rule and exceptions.
-    ('ck', '', False),
-    ('test.ck', '', False),
-    ('b.test.ck', 'b.test.ck', False),
-    ('a.b.test.ck', 'b.test.ck', False),
-    ('www.ck', 'www.ck', False),
-    ('www.www.ck', 'www.ck', False),
+    ('ck', '', {}),
+    ('test.ck', '', {}),
+    ('b.test.ck', 'b.test.ck', {}),
+    ('a.b.test.ck', 'b.test.ck', {}),
+    ('www.ck', 'www.ck', {}),
+    ('www.www.ck', 'www.ck', {}),
     # US K12.
-    ('us', '', False),
-    ('test.us', 'test.us', False),
-    ('www.test.us', 'test.us', False),
-    ('ak.us', '', False),
-    ('test.ak.us', 'test.ak.us', False),
-    ('www.test.ak.us', 'test.ak.us', False),
-    ('k12.ak.us', '', False),
-    ('test.k12.ak.us', 'test.k12.ak.us', False),
-    ('www.test.k12.ak.us', 'test.k12.ak.us', False),
+    ('us', '', {}),
+    ('test.us', 'test.us', {}),
+    ('www.test.us', 'test.us', {}),
+    ('ak.us', '', {}),
+    ('test.ak.us', 'test.ak.us', {}),
+    ('www.test.ak.us', 'test.ak.us', {}),
+    ('k12.ak.us', '', {}),
+    ('test.k12.ak.us', 'test.k12.ak.us', {}),
+    ('www.test.k12.ak.us', 'test.k12.ak.us', {}),
     # IDN labels.
-    (u'食狮.com.cn', u'食狮.com.cn', False),
-    (u'食狮.公司.cn', u'食狮.公司.cn', False),
-    (u'www.食狮.公司.cn', u'食狮.公司.cn', False),
-    (u'shishi.公司.cn', u'shishi.公司.cn', False),
-    (u'公司.cn', u'', False),
-    (u'食狮.中国', u'食狮.中国', False),
-    (u'www.食狮.中国', u'食狮.中国', False),
-    (u'shishi.中国', u'shishi.中国', False),
-    (u'中国', u'', False),
+    (u'食狮.com.cn', u'食狮.com.cn', {}),
+    (u'食狮.公司.cn', u'食狮.公司.cn', {}),
+    (u'www.食狮.公司.cn', u'食狮.公司.cn', {}),
+    (u'shishi.公司.cn', u'shishi.公司.cn', {}),
+    (u'公司.cn', u'', {}),
+    (u'食狮.中国', u'食狮.中国', {}),
+    (u'www.食狮.中国', u'食狮.中国', {}),
+    (u'shishi.中国', u'shishi.中国', {}),
+    (u'中国', u'', {}),
     # Same as above, but punycoded.  (TODO: punycode not supported yet!)
-    ('xn--85x722f.com.cn', 'xn--85x722f.com.cn', False),
-    ('xn--85x722f.xn--55qx5d.cn', 'xn--85x722f.xn--55qx5d.cn', False),
-    ('www.xn--85x722f.xn--55qx5d.cn', 'xn--85x722f.xn--55qx5d.cn', False),
-    ('shishi.xn--55qx5d.cn', 'shishi.xn--55qx5d.cn', False),
-    ('xn--55qx5d.cn', '', False),
-    ('xn--85x722f.xn--fiqs8s', 'xn--85x722f.xn--fiqs8s', False),
-    ('www.xn--85x722f.xn--fiqs8s', 'xn--85x722f.xn--fiqs8s', False),
-    ('shishi.xn--fiqs8s', 'shishi.xn--fiqs8s', False),
-    ('xn--fiqs8s', '', False),
+    ('xn--85x722f.com.cn', 'xn--85x722f.com.cn', {}),
+    ('xn--85x722f.xn--55qx5d.cn', 'xn--85x722f.xn--55qx5d.cn', {}),
+    ('www.xn--85x722f.xn--55qx5d.cn', 'xn--85x722f.xn--55qx5d.cn', {}),
+    ('shishi.xn--55qx5d.cn', 'shishi.xn--55qx5d.cn', {}),
+    ('xn--55qx5d.cn', '', {}),
+    ('xn--85x722f.xn--fiqs8s', 'xn--85x722f.xn--fiqs8s', {}),
+    ('www.xn--85x722f.xn--fiqs8s', 'xn--85x722f.xn--fiqs8s', {}),
+    ('shishi.xn--fiqs8s', 'shishi.xn--fiqs8s', {}),
+    ('xn--fiqs8s', '', {}),
 ]
 # End of public domain test data
 # -------------------------------------------------------------------------------------------------
 
 
-@pytest.mark.parametrize("domain, registrable_domain, normalize_result", TEST_SUFFIX_OFFICIAL_TESTS)
-def test_get_suffix_official(domain, registrable_domain, normalize_result):
+@pytest.mark.parametrize("domain, registrable_domain, kwargs", TEST_SUFFIX_OFFICIAL_TESTS)
+def test_get_suffix_official(domain, registrable_domain, kwargs):
     if is_idn(domain) and not HAS_IDNA:
         pytest.skip('Need `idna` to run test with IDN')
-    reg_domain = PUBLIC_SUFFIX_LIST.get_registrable_domain(domain, normalize_result=normalize_result)
+    reg_domain = PUBLIC_SUFFIX_LIST.get_registrable_domain(domain, **kwargs)
     print(reg_domain)
     assert reg_domain == registrable_domain
