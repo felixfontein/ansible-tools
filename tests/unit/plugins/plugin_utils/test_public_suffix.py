@@ -49,7 +49,7 @@ TEST_LABEL_SPLIT_ERRORS = [
 
 
 @pytest.mark.parametrize("domain", TEST_LABEL_SPLIT_ERRORS)
-def test_split_into_labels(domain):
+def test_split_into_labels_errors(domain):
     with pytest.raises(InvalidDomainName):
         split_into_labels(domain)
 
