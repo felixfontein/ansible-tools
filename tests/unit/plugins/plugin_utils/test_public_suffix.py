@@ -95,6 +95,8 @@ TEST_GET_SUFFIX = [
     ('a-.com', {}, {}, '', ''),  # invalid domain name (trailing dash in label)
     ('-.com', {}, {}, '', ''),  # invalid domain name (leading and trailing dash in label)
     ('.com', {}, {}, '', ''),  # invalid domain name (empty label)
+    ('test.cloudfront.net', {}, {}, 'cloudfront.net', 'test.cloudfront.net'),  # private rule
+    ('test.cloudfront.net', {'icann_only': True}, {}, 'net', 'cloudfront.net'),
 ]
 
 
