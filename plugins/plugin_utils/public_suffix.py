@@ -4,6 +4,35 @@ from __future__ import absolute_import, division, print_function
 __metaclass__ = type
 
 import os.path
+import re
+
+try:
+    import idna
+except ImportError as imp_exc:
+    HAS_IDNA = False
+    IDNA_IMPORT_ERROR = imp_exc
+else:
+    HAS_IDNA = True
+
+from ansible.errors import AnsibleError
+from ansible.module_utils.six import raise_from
+from ansible.module_utils._text import to_text
+
+
+_NO_IDN_MATCHER = re.compile(r'^[a-zA-Z0-9.-]+$')
+
+
+def is_idn(domain):
+    return _NO_IDN_MATCHER.match(domain) is None
+
+
+class InvalidDomainName(Exception):
+    pass
+
+
+class IDNANotInstalled(Exception):
+    def __init__(self):
+        super(IDNANotInstalled, self).__init__('Cannot handle International Domain Names (IDNs) if `idna` is not installed')
 
 
 def split_into_labels(domain):
@@ -20,13 +49,19 @@ def split_into_labels(domain):
         tail = '.'
     while index >= 0:
         next_index = domain.rfind('.', 0, index)
-        result.append(domain[next_index + 1:index])
+        label = domain[next_index + 1:index]
+        if label == '' or label[0] == '-' or label[-1] == '-':
+            raise InvalidDomainName(domain)
+        result.append(label)
         index = next_index
     return result, tail
 
 
 def normalize_label(label):
-    # FIXME: handle IDNs / Punycode
+    if label not in ('', '*') and is_idn(label):
+        if not HAS_IDNA:
+            raise_from(IDNANotInstalled(), IDNA_IMPORT_ERROR)
+        label = to_text(idna.encode(label))
     return label.lower()
 
 
@@ -67,27 +102,32 @@ class PublicSuffixList(object):
     def load(cls, filename):
         rules = []
         part = None
-        with open(filename, 'rt') as f:
-            for line in f:
-                line = line.strip()
-                if line.startswith('//') or not line:
-                    if '===BEGIN ICANN DOMAINS===' in line:
-                        part = 'icann'
-                    if '===BEGIN PRIVATE DOMAINS===' in line:
-                        part = 'private'
-                    if '===END ICANN DOMAINS===' in line or '===END PRIVATE DOMAINS===' in line:
-                        part = None
-                    continue
-                if part is None:
-                    raise Exception('Internal error: found PSL entry with no part!')
-                exception_rule = False
-                if line.startswith('!'):
-                    exception_rule = True
-                    line = line[1:]
-                if line.startswith('.'):
-                    line = line[1:]
+        with open(filename, 'rb') as f:
+            content = f.read().decode('utf-8')
+        for line in content.splitlines():
+            line = line.strip()
+            if line.startswith('//') or not line:
+                if '===BEGIN ICANN DOMAINS===' in line:
+                    part = 'icann'
+                if '===BEGIN PRIVATE DOMAINS===' in line:
+                    part = 'private'
+                if '===END ICANN DOMAINS===' in line or '===END PRIVATE DOMAINS===' in line:
+                    part = None
+                continue
+            if part is None:
+                raise Exception('Internal error: found PSL entry with no part!')
+            exception_rule = False
+            if line.startswith('!'):
+                exception_rule = True
+                line = line[1:]
+            if line.startswith('.'):
+                line = line[1:]
+            try:
                 labels = tuple(normalize_label(label) for label in split_into_labels(line)[0])
                 rules.append(PublicSuffixEntry(labels, exception_rule=exception_rule, part=part))
+            except IDNANotInstalled:
+                # This happens when `idna` is not installed and we try to process IDNs.
+                pass
         return cls(rules)
 
     def get_suffix_length_and_rule(self, normalized_labels):
@@ -113,28 +153,40 @@ class PublicSuffixList(object):
         # Return result
         return suffix_length, rule
 
-    def get_suffix(self, domain, keep_unknown_suffix=True):
+    def get_suffix(self, domain, keep_unknown_suffix=True, normalize_result=False):
         # Split into labels and normalize
-        labels, tail = split_into_labels(domain)
-        normalized_labels = [normalize_label(label) for label in labels]
+        try:
+            labels, tail = split_into_labels(domain)
+            normalized_labels = [normalize_label(label) for label in labels]
+        except InvalidDomainName:
+            return ''
+        if normalize_result:
+            labels = normalized_labels
 
         # Get suffix length
         suffix_length, rule = self.get_suffix_length_and_rule(normalized_labels)
         if not keep_unknown_suffix and rule is self._generic_rule:
-            suffix_length = 0
+            return ''
         return '.'.join(reversed(labels[:suffix_length])) + tail
 
-    def get_registrable_domain(self, domain, keep_unknown_suffix=True):
+    def get_registrable_domain(self, domain, keep_unknown_suffix=True, only_if_registerable=True, normalize_result=False):
         # Split into labels and normalize
-        labels, tail = split_into_labels(domain)
-        normalized_labels = [normalize_label(label) for label in labels]
+        try:
+            labels, tail = split_into_labels(domain)
+            normalized_labels = [normalize_label(label) for label in labels]
+        except InvalidDomainName:
+            return ''
+        if normalize_result:
+            labels = normalized_labels
 
         # Get suffix length
         suffix_length, rule = self.get_suffix_length_and_rule(normalized_labels)
         if not keep_unknown_suffix and rule is self._generic_rule:
-            suffix_length = 0
+            return ''
         if suffix_length < len(labels):
             suffix_length += 1
+        elif only_if_registerable:
+            return ''
         return '.'.join(reversed(labels[:suffix_length])) + tail
 
 

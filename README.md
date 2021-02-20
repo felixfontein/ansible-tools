@@ -78,10 +78,12 @@ ok: [localhost] => (item={0: 2, 1: 8, 2: 82}) => {
 
 ### Filters for working with domain names
 
-- `felixfontein.tools.dns_zone`: given a domain name, returns the DNS zone, i.e. the label before the public suffix and the public suffix. For example, `"www.ansible.com" | felixfontein.tools.dns_zone == "ansible.com"` and `"some.random.prefixes.ansible.co.uk" | felixfontein.tools.dns_zone == "ansible.co.uk"`.
+- `felixfontein.tools.dns_zone`: given a domain name, returns the DNS zone, i.e. the label before the public suffix and the public suffix. For example, `"www.ansible.com" | felixfontein.tools.dns_zone == "ansible.com"` and `"some.random.prefixes.ansible.co.uk" | felixfontein.tools.dns_zone == "ansible.co.uk"`. This is sometimes also called the registered domain, or registerable domain.
 - `felixfontein.tools.dns_zone_prefix`: given a domain name, returns the part before the DNS zone. For example, `"www.ansible.com" | felixfontein.tools.dns_zone_prefix == "www"` and `"some.random.prefixes.ansible.co.uk" | felixfontein.tools.dns_zone_prefix == "some.random.prefixes"`.
 - `felixfontein.tools.get_domain_suffix`: given a domain name, returns the public suffix. For example, `"www.ansible.com" | felixfontein.tools.get_domain_suffix == ".com"` and `"some.random.prefixes.ansible.co.uk" | felixfontein.tools.get_domain_suffix == ".co.uk"`.
 - `felixfontein.tools.remove_domain_suffix`: given a domain name, returns the part before the public suffix. For example, `"www.ansible.com" | felixfontein.tools.remove_domain_suffix == "www.ansible"` and `"some.random.prefixes.ansible.co.uk" | felixfontein.tools.remove_domain_suffix == "some.random.prefixes.ansible"`.
+
+Note that these filters can only handle International Domain Names (IDNs) when the [Python library `idna`](https://pypi.org/project/idna/) is installed.
 
 ## Using this collection
 
@@ -94,6 +96,8 @@ See [here](https://github.com/felixfontein/ansible-tools/tree/main/CHANGELOG.rst
 ## Releasing, Deprecation and Versioning
 
 We release new versions once there are new features or bugfixes. Deprecations can happen, and we try to announce them a long time in advance. We currently do not plan breaking changes, so there will be no new major release anytime soon.
+
+Please note that we consider updates to the Public Suffix List as bugfixes. While we update the copy of the Public Suffix List often, we do not create a bugfix release for every change. Please create an issue to request an update if you think the last update was too long ago.
 
 ## Contributing
 

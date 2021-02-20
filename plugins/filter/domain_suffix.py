@@ -13,13 +13,13 @@ def remove_trailing_period(domain):
 
 
 def dns_zone(domain):
-    '''Given domain name, returns the zone name (registrable domain).'''
-    return PUBLIC_SUFFIX_LIST.get_registrable_domain(domain)
+    '''Given domain name, returns the zone name (essentially the registrable domain).'''
+    return PUBLIC_SUFFIX_LIST.get_registrable_domain(domain, only_if_registerable=False)
 
 
 def dns_zone_prefix(domain, keep_trailing_period=False):
     '''Given domain name, returns the part before the zone name.'''
-    suffix = PUBLIC_SUFFIX_LIST.get_registrable_domain(domain)
+    suffix = PUBLIC_SUFFIX_LIST.get_registrable_domain(domain, only_if_registerable=False)
     result = domain[:-len(suffix)]
     if not keep_trailing_period and result:
         result = result[:-1]
