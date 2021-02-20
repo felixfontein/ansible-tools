@@ -122,15 +122,13 @@ from ansible.errors import AnsibleError
 
 
 class LookupModule(LookupBase):
-    def __evaluate(self, expression, templar, variables=None):
+    def __evaluate(self, expression, templar, variables):
         """Evaluate expression with templar.
 
         ``expression`` is the expression to evaluate.
         ``variables`` are the variables to use.
         """
-        if variables is None:
-            vaiables = {}
-        templar.available_variables = variables
+        templar.available_variables = variables or {}
         return templar.template("{0}{1}{2}".format("{{", expression, "}}"), cache=False)
 
     def __process(self, result, terms, index, current, templar, variables):
