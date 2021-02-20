@@ -6,14 +6,6 @@ __metaclass__ = type
 import os.path
 import re
 
-try:
-    import idna
-except ImportError as imp_exc:
-    HAS_IDNA = False
-    IDNA_IMPORT_ERROR = imp_exc
-else:
-    HAS_IDNA = True
-
 from ansible.errors import AnsibleError
 from ansible.module_utils.six import raise_from
 from ansible.module_utils._text import to_text
@@ -28,11 +20,6 @@ def is_idn(domain):
 
 class InvalidDomainName(Exception):
     pass
-
-
-class IDNANotInstalled(Exception):
-    def __init__(self):
-        super(IDNANotInstalled, self).__init__('Cannot handle International Domain Names (IDNs) if `idna` is not installed')
 
 
 def split_into_labels(domain):
@@ -51,7 +38,7 @@ def split_into_labels(domain):
         while index >= 0:
             next_index = domain.rfind('.', 0, index)
             label = domain[next_index + 1:index]
-            if label == '' or label[0] == '-' or label[-1] == '-':
+            if label == '' or label[0] == '-' or label[-1] == '-' or len(label) > 63:
                 raise InvalidDomainName(domain)
             result.append(label)
             index = next_index
@@ -60,12 +47,9 @@ def split_into_labels(domain):
 
 def normalize_label(label):
     if label not in ('', '*') and is_idn(label):
-        if not HAS_IDNA:
-            raise_from(IDNANotInstalled(), IDNA_IMPORT_ERROR)
-        try:
-            label = to_text(idna.encode(label))
-        except idna.core.IDNAError as exc:
-            raise_from(InvalidDomainName(label), exc)
+        # Convert ulabel to alabel
+        label = to_text(b'xn--' + to_text(label).encode('punycode'))
+    # Always convert to lower-case
     return label.lower()
 
 
@@ -126,12 +110,8 @@ class PublicSuffixList(object):
                 line = line[1:]
             if line.startswith('.'):
                 line = line[1:]
-            try:
-                labels = tuple(normalize_label(label) for label in split_into_labels(line)[0])
-                rules.append(PublicSuffixEntry(labels, exception_rule=exception_rule, part=part))
-            except IDNANotInstalled:
-                # This happens when `idna` is not installed and we try to process IDNs.
-                pass
+            labels = tuple(normalize_label(label) for label in split_into_labels(line)[0])
+            rules.append(PublicSuffixEntry(labels, exception_rule=exception_rule, part=part))
         return cls(rules)
 
     def get_suffix_length_and_rule(self, normalized_labels):

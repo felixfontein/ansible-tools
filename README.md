@@ -83,8 +83,6 @@ ok: [localhost] => (item={0: 2, 1: 8, 2: 82}) => {
 - `felixfontein.tools.get_domain_suffix`: given a domain name, returns the public suffix. For example, `"www.ansible.com" | felixfontein.tools.get_domain_suffix == ".com"` and `"some.random.prefixes.ansible.co.uk" | felixfontein.tools.get_domain_suffix == ".co.uk"`.
 - `felixfontein.tools.remove_domain_suffix`: given a domain name, returns the part before the public suffix. For example, `"www.ansible.com" | felixfontein.tools.remove_domain_suffix == "www.ansible"` and `"some.random.prefixes.ansible.co.uk" | felixfontein.tools.remove_domain_suffix == "some.random.prefixes.ansible"`.
 
-Note that these filters can only handle International Domain Names (IDNs) when the [Python library `idna`](https://pypi.org/project/idna/) is installed.
-
 ## Using this collection
 
 See [Ansible Using collections](https://docs.ansible.com/ansible/latest/user_guide/collections_using.html) for more details.
