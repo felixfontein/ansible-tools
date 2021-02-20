@@ -68,28 +68,33 @@ def test_normalize_label(label, normalized_label):
 
 
 TEST_GET_SUFFIX = [
-    ('foo.com', {}, 'com', 'foo.com'),
-    ('bar.foo.com.', {}, 'com.', 'foo.com.'),
-    ('BaR.fOo.CoM.', {'normalize_result': True}, 'com.', 'foo.com.'),
-    ('BaR.fOo.CoM.', {}, 'CoM.', 'fOo.CoM.'),
-    ('com', {}, 'com', ''),
-    ('com', {'keep_unknown_suffix': False}, 'com', ''),
-    ('foo.com', {}, 'com', 'foo.com'),
-    ('foo.com', {'keep_unknown_suffix': False}, 'com', 'foo.com'),
-    ('foobarbaz', {}, 'foobarbaz', ''),
-    ('foobarbaz', {'keep_unknown_suffix': False}, '', ''),
-    ('foo.foobarbaz', {}, 'foobarbaz', 'foo.foobarbaz'),
-    ('foo.foobarbaz', {'keep_unknown_suffix': False}, '', ''),
-    ('-a.com', {}, '', ''),  # invalid domain name (leading dash in label)
-    ('a-.com', {}, '', ''),  # invalid domain name (trailing dash in label)
-    ('-.com', {}, '', ''),  # invalid domain name (leading and trailing dash in label)
-    ('.com', {}, '', ''),  # invalid domain name (empty label)
+    ('', {}, {}, '', ''),
+    ('.', {}, {}, '', ''),
+    ('foo.com', {}, {}, 'com', 'foo.com'),
+    ('bar.foo.com.', {}, {}, 'com.', 'foo.com.'),
+    ('BaR.fOo.CoM.', {'normalize_result': True}, {}, 'com.', 'foo.com.'),
+    ('BaR.fOo.CoM.', {}, {}, 'CoM.', 'fOo.CoM.'),
+    ('com', {}, {}, 'com', ''),
+    ('com', {}, {'only_if_registerable': False}, 'com', 'com'),
+    ('com', {'keep_unknown_suffix': False}, {}, 'com', ''),
+    ('foo.com', {}, {}, 'com', 'foo.com'),
+    ('foo.com', {'keep_unknown_suffix': False}, {}, 'com', 'foo.com'),
+    ('foobarbaz', {}, {}, 'foobarbaz', ''),
+    ('foobarbaz', {}, {'only_if_registerable': False}, 'foobarbaz', 'foobarbaz'),
+    ('foobarbaz', {'keep_unknown_suffix': False}, {}, '', ''),
+    ('foo.foobarbaz', {}, {}, 'foobarbaz', 'foo.foobarbaz'),
+    ('foo.foobarbaz', {'keep_unknown_suffix': False}, {}, '', ''),
+    ('-a.com', {}, {}, '', ''),  # invalid domain name (leading dash in label)
+    ('a-.com', {}, {}, '', ''),  # invalid domain name (trailing dash in label)
+    ('-.com', {}, {}, '', ''),  # invalid domain name (leading and trailing dash in label)
+    ('.com', {}, {}, '', ''),  # invalid domain name (empty label)
 ]
 
 
-@pytest.mark.parametrize("domain, kwargs, suffix, reg_domain", TEST_GET_SUFFIX)
-def test_get_suffix(domain, kwargs, suffix, reg_domain):
+@pytest.mark.parametrize("domain, kwargs, reg_extra_kwargs, suffix, reg_domain", TEST_GET_SUFFIX)
+def test_get_suffix(domain, kwargs, reg_extra_kwargs, suffix, reg_domain):
     assert PUBLIC_SUFFIX_LIST.get_suffix(domain, **kwargs) == suffix
+    kwargs.update(reg_extra_kwargs)
     assert PUBLIC_SUFFIX_LIST.get_registrable_domain(domain, **kwargs) == reg_domain
 
 
