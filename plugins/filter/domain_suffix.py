@@ -6,12 +6,6 @@ __metaclass__ = type
 from ansible_collections.felixfontein.tools.plugins.plugin_utils.public_suffix import PUBLIC_SUFFIX_LIST
 
 
-def remove_trailing_period(domain):
-    if domain.endswith('.'):
-        return domain[:-1], '.'
-    return domain, ''
-
-
 def dns_zone(domain):
     '''Given domain name, returns the zone name (essentially the registrable domain).'''
     return PUBLIC_SUFFIX_LIST.get_registrable_domain(domain, only_if_registerable=False)
