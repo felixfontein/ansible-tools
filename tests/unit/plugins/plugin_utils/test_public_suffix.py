@@ -19,6 +19,7 @@ from ansible_collections.felixfontein.tools.plugins.plugin_utils.public_suffix i
     normalize_label,
     split_into_labels,
     InvalidDomainName,
+    PublicSuffixList,
     PUBLIC_SUFFIX_LIST,
 )
 
@@ -231,3 +232,27 @@ TEST_SUFFIX_OFFICIAL_TESTS = [
 def test_get_suffix_official(domain, registrable_domain, kwargs):
     reg_domain = PUBLIC_SUFFIX_LIST.get_registrable_domain(domain, **kwargs)
     assert reg_domain == registrable_domain
+
+
+def test_load_psl_dot(tmpdir):
+    fn = tmpdir / 'psl.dat'
+    fn.write('''// ===BEGIN BLA BLA DOMAINS===
+.com.
+// ===END BLA BLA DOMAINS==='''.encode('utf-8'))
+    psl = PublicSuffixList.load(fn)
+    assert len(psl._rules) == 1
+    rule = psl._rules[0]
+    assert rule.labels == ('com', )
+    assert rule.exception_rule is False
+    assert rule.part == 'bla bla'
+
+
+def test_load_psl_no_part(tmpdir):
+    fn = tmpdir / 'psl.dat'
+    fn.write('''// ===BEGIN BLA BLA DOMAINS===
+com
+// ===END BLA BLA DOMAINS===
+net'''.encode('utf-8'))
+    with pytest.raises(Exception) as excinfo:
+        PublicSuffixList.load(fn)
+    assert str(excinfo.value) == 'Internal error: found PSL entry with no part!'
