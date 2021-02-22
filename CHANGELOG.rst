@@ -5,6 +5,20 @@ Felix's Tools Release Notes
 .. contents:: Topics
 
 
+v1.3.0
+======
+
+Release Summary
+---------------
+
+Completely rewrote the Public Suffix List handling code.
+
+Minor Changes
+-------------
+
+- The public suffix list (PSL) matching algorithm as specified on https://publicsuffix.org/list/ is now used.
+- The public suffix list (PSL) was updated.
+
 v1.2.0
 ======
 
