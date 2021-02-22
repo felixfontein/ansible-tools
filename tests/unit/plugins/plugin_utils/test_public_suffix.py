@@ -239,7 +239,7 @@ def test_load_psl_dot(tmpdir):
     fn.write('''// ===BEGIN BLA BLA DOMAINS===
 .com.
 // ===END BLA BLA DOMAINS==='''.encode('utf-8'))
-    psl = PublicSuffixList.load(fn)
+    psl = PublicSuffixList.load(str(fn))
     assert len(psl._rules) == 1
     rule = psl._rules[0]
     assert rule.labels == ('com', )
@@ -254,5 +254,5 @@ com
 // ===END BLA BLA DOMAINS===
 net'''.encode('utf-8'))
     with pytest.raises(Exception) as excinfo:
-        PublicSuffixList.load(fn)
+        PublicSuffixList.load(str(fn))
     assert str(excinfo.value) == 'Internal error: found PSL entry with no part!'
