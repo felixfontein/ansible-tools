@@ -11,6 +11,9 @@ from ansible.module_utils._text import to_text
 
 _ONLY_ALABELS_MATCHER = re.compile(r'^[a-zA-Z0-9.-]*$')
 
+_BEGIN_SUBSET_MATCHER = re.compile(r'===BEGIN ([^=]*) DOMAINS===')
+_END_SUBSET_MATCHER = re.compile(r'===END ([^=]*) DOMAINS===')
+
 
 def only_alabels(domain):
     '''
@@ -122,11 +125,11 @@ class PublicSuffixList(object):
         for line in content.splitlines():
             line = line.strip()
             if line.startswith('//') or not line:
-                if '===BEGIN ICANN DOMAINS===' in line:
-                    part = 'icann'
-                if '===BEGIN PRIVATE DOMAINS===' in line:
-                    part = 'private'
-                if '===END ICANN DOMAINS===' in line or '===END PRIVATE DOMAINS===' in line:
+                m = _BEGIN_SUBSET_MATCHER.search(line)
+                if m:
+                    part = m.group(1).lower()
+                m = _END_SUBSET_MATCHER.search(line)
+                if m:
                     part = None
                 continue
             if part is None:
