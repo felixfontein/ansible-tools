@@ -78,10 +78,15 @@ ok: [localhost] => (item={0: 2, 1: 8, 2: 82}) => {
 
 ### Filters for working with domain names
 
-- `felixfontein.tools.dns_zone`: given a domain name, returns the DNS zone, i.e. the label before the public suffix and the public suffix. For example, `"www.ansible.com" | felixfontein.tools.dns_zone == "ansible.com"` and `"some.random.prefixes.ansible.co.uk" | felixfontein.tools.dns_zone == "ansible.co.uk"`. This is sometimes also called the registered domain, or registerable domain.
+- `felixfontein.tools.dns_zone`: given a domain name, returns the DNS zone, i.e. the label before the public suffix and the public suffix. For example, `"www.ansible.com" | felixfontein.tools.dns_zone == "ansible.com"` and `"some.random.prefixes.ansible.co.uk" | felixfontein.tools.dns_zone == "ansible.co.uk"`. This usually equals the *registrable domain* or *registered domain*.
 - `felixfontein.tools.dns_zone_prefix`: given a domain name, returns the part before the DNS zone. For example, `"www.ansible.com" | felixfontein.tools.dns_zone_prefix == "www"` and `"some.random.prefixes.ansible.co.uk" | felixfontein.tools.dns_zone_prefix == "some.random.prefixes"`.
 - `felixfontein.tools.get_domain_suffix`: given a domain name, returns the public suffix. For example, `"www.ansible.com" | felixfontein.tools.get_domain_suffix == ".com"` and `"some.random.prefixes.ansible.co.uk" | felixfontein.tools.get_domain_suffix == ".co.uk"`.
+- `felixfontein.tools.registrable_domain`: given a domain name, returns the *registrable domain name* (also called *registered domain name*). For example, `"www.ansible.com" | felixfontein.tools.registrable_domain == "ansible.com"` and `"some.random.prefixes.ansible.co.uk" | felixfontein.tools.registrable_domain == "ansible.co.uk"`. For unknown suffixes, or in case there is no label before the pubic suffix, an empty string is returned.
 - `felixfontein.tools.remove_domain_suffix`: given a domain name, returns the part before the public suffix. For example, `"www.ansible.com" | felixfontein.tools.remove_domain_suffix == "www.ansible"` and `"some.random.prefixes.ansible.co.uk" | felixfontein.tools.remove_domain_suffix == "some.random.prefixes.ansible"`.
+
+### Tests for working with domain names
+
+- `felixfontein.tools.is_registrable_domain`: given a domain name, tests whether it is a *registrable domain name* (also called *registered domain name*). For example, `"www.ansible.com" is felixfontein.tools.is_registrable_domain` evaluates to `false`, while `"ansible.co.uk" is felixfontein.tools.is_registrable_domain` evaluates to `true`.
 
 ## Using this collection
 
