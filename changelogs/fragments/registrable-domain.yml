@@ -1,0 +1,7 @@
+---
+add plugin.filter:
+  - name: registrable_domain
+    description: Given domain name, returns the registrable domain
+add plugin.test:
+  - name: is_registrable_domain
+    description: Given domain name, tests whether it is a registrable domain

@@ -1,0 +1,9 @@
+---
+- name: "Test is_registrable_domain test"
+  assert:
+    that:
+      - "'' is felixfontein.tools.is_registrable_domain == false"
+      - "'ansible.com' is felixfontein.tools.is_registrable_domain == true"
+      - "'ansible.com.' is felixfontein.tools.is_registrable_domain == true"
+      - "'www.ansible.co.uk' is felixfontein.tools.is_registrable_domain == false"
+      - "'invalid.example' is felixfontein.tools.is_registrable_domain == false"
