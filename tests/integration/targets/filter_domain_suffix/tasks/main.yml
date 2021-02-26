@@ -33,3 +33,12 @@
       - "'com' | felixfontein.tools.remove_domain_suffix == ''"
       - "'www.ansible.com' | felixfontein.tools.remove_domain_suffix == 'www.ansible'"
       - "'some.random.prefixes.ansible.co.uk' | felixfontein.tools.remove_domain_suffix == 'some.random.prefixes.ansible'"
+
+- name: "Test registrable_domain filter"
+  assert:
+    that:
+      - "'' | felixfontein.tools.registrable_domain == ''"
+      - "'www.ansible.com' | felixfontein.tools.registrable_domain == 'ansible.com'"
+      - "'www.ansible.com.' | felixfontein.tools.registrable_domain == 'ansible.com.'"
+      - "'some.random.prefixes.ansible.co.uk' | felixfontein.tools.registrable_domain == 'ansible.co.uk'"
+      - "'some.invalid.example' | felixfontein.tools.registrable_domain == ''"

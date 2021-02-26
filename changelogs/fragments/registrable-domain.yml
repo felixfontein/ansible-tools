@@ -1,0 +1,4 @@
+---
+add plugin.filter:
+  - name: registrable_domain
+    description: Given domain name, returns the registrable domain

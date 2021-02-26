@@ -6,6 +6,11 @@ __metaclass__ = type
 from ansible_collections.felixfontein.tools.plugins.plugin_utils.public_suffix import PUBLIC_SUFFIX_LIST
 
 
+def registrable_domain(domain):
+    '''Given domain name, returns the registrable domain.'''
+    return PUBLIC_SUFFIX_LIST.get_registrable_domain(domain, only_if_registerable=False, keep_unknown_suffix=False)
+
+
 def dns_zone(domain):
     '''Given domain name, returns the zone name (essentially the registrable domain).'''
     return PUBLIC_SUFFIX_LIST.get_registrable_domain(domain, only_if_registerable=False)
@@ -45,5 +50,6 @@ class FilterModule(object):
             'dns_zone': dns_zone,
             'dns_zone_prefix': dns_zone_prefix,
             'get_domain_suffix': get_domain_suffix,
+            'registrable_domain': registrable_domain,
             'remove_domain_suffix': remove_domain_suffix,
         }
