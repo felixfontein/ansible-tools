@@ -1,0 +1,69 @@
+name: import-galaxy
+on:
+  # Run CI against all pushes (direct commits, also merged PRs) to main, and all Pull Requests
+  push:
+    branches:
+      - main
+  pull_request:
+
+env:
+  NAMESPACE: felixfontein
+  COLLECTION_NAME: tools
+  COLLECTION_VERSION: 1.0.0
+
+jobs:
+  build-collection:
+    name: Build collection artifact
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v2
+
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3.8
+
+      - name: Install ansible-core
+        run: pip install https://github.com/ansible/ansible/archive/devel.tar.gz --disable-pip-version-check
+
+      - name: Update version
+        run: |
+          sed -i -e 's/^version: [^ ]*$/version: ${{ env.COLLECTION_VERSION }}/g' galaxy.yml
+
+      - name: Build collection
+        run: ansible-galaxy collection build
+
+      - name: Fix artifact name
+        run: mv ${{ env.NAMESPACE }}-${{ env.COLLECTION_NAME }}-${{ env.COLLECTION_VERSION }}.tar.gz ${{ env.NAMESPACE }}-${{ env.COLLECTION_NAME }}-${{ github.sha }}.tar.gz
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: ${{ env.NAMESPACE }}-${{ env.COLLECTION_NAME }}-${{ github.sha }}.tar.gz
+          path: ${{ env.NAMESPACE }}-${{ env.COLLECTION_NAME }}-${{ github.sha }}.tar.gz
+
+  import-galaxy:
+    name: Import artifact with Galaxy importer
+    runs-on: ubuntu-latest
+    needs:
+      - build-collection
+    steps:
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3.8
+
+      - name: Install galaxy-importer
+        run: pip install galaxy-importer --disable-pip-version-check
+
+      - name: Download artifact
+        uses: actions/download-artifact@v2
+        with:
+          name: ${{ env.NAMESPACE }}-${{ env.COLLECTION_NAME }}-${{ github.sha }}.tar.gz
+
+      - name: Fix artifact name
+        run: mv ${{ env.NAMESPACE }}-${{ env.COLLECTION_NAME }}-${{ github.sha }}.tar.gz ${{ env.NAMESPACE }}-${{ env.COLLECTION_NAME }}-${{ env.COLLECTION_VERSION }}.tar.gz
+
+      - name: Run Galaxy importer
+        run: python -m galaxy_importer.main ${{ env.NAMESPACE }}-${{ env.COLLECTION_NAME }}-${{ env.COLLECTION_VERSION }}.tar.gz
