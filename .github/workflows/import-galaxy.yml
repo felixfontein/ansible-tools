@@ -9,7 +9,6 @@ on:
 env:
   NAMESPACE: felixfontein
   COLLECTION_NAME: tools
-  COLLECTION_VERSION: 1.0.0
 
 jobs:
   build-collection:
@@ -18,6 +17,8 @@ jobs:
     steps:
       - name: Check out code
         uses: actions/checkout@v2
+        with:
+          path: ./checkout
 
       - name: Set up Python
         uses: actions/setup-python@v2
@@ -27,21 +28,18 @@ jobs:
       - name: Install ansible-core
         run: pip install https://github.com/ansible/ansible/archive/devel.tar.gz --disable-pip-version-check
 
-      - name: Update version
-        run: |
-          sed -i -e 's/^version: [^ ]*$/version: ${{ env.COLLECTION_VERSION }}/g' galaxy.yml
-
       - name: Build collection
         run: ansible-galaxy collection build
+        working-directory: ./checkout
 
-      - name: Fix artifact name
-        run: mv ${{ env.NAMESPACE }}-${{ env.COLLECTION_NAME }}-${{ env.COLLECTION_VERSION }}.tar.gz ${{ env.NAMESPACE }}-${{ env.COLLECTION_NAME }}-${{ github.sha }}.tar.gz
+      - name: Copy artifact into subdirectory
+        run: mkdir ./artifact && mv ./checkout/${{ env.NAMESPACE }}-${{ env.COLLECTION_NAME }}-*.tar.gz ./artifact
 
       - name: Upload artifact
         uses: actions/upload-artifact@v2
         with:
-          name: ${{ env.NAMESPACE }}-${{ env.COLLECTION_NAME }}-${{ github.sha }}.tar.gz
-          path: ${{ env.NAMESPACE }}-${{ env.COLLECTION_NAME }}-${{ github.sha }}.tar.gz
+          name: ${{ env.NAMESPACE }}-${{ env.COLLECTION_NAME }}-${{ github.sha }}
+          path: ./artifact/
 
   import-galaxy:
     name: Import artifact with Galaxy importer
@@ -66,10 +64,7 @@ jobs:
       - name: Download artifact
         uses: actions/download-artifact@v2
         with:
-          name: ${{ env.NAMESPACE }}-${{ env.COLLECTION_NAME }}-${{ github.sha }}.tar.gz
-
-      - name: Fix artifact name
-        run: mv ${{ env.NAMESPACE }}-${{ env.COLLECTION_NAME }}-${{ github.sha }}.tar.gz ${{ env.NAMESPACE }}-${{ env.COLLECTION_NAME }}-${{ env.COLLECTION_VERSION }}.tar.gz
+          name: ${{ env.NAMESPACE }}-${{ env.COLLECTION_NAME }}-${{ github.sha }}
 
       - name: Run Galaxy importer
-        run: python -m galaxy_importer.main ${{ env.NAMESPACE }}-${{ env.COLLECTION_NAME }}-${{ env.COLLECTION_VERSION }}.tar.gz
+        run: python -m galaxy_importer.main ${{ env.NAMESPACE }}-${{ env.COLLECTION_NAME }}-*.tar.gz
