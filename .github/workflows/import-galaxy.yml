@@ -7,6 +7,7 @@ on:
   pull_request:
 
 env:
+  # Adjust this to your collection
   NAMESPACE: felixfontein
   COLLECTION_NAME: tools
 
@@ -27,6 +28,20 @@ jobs:
 
       - name: Install ansible-core
         run: pip install https://github.com/ansible/ansible/archive/devel.tar.gz --disable-pip-version-check
+
+      - name: Make sure galaxy.yml has version entry
+        run: >-
+          python -c
+          'import yaml ;
+          f = open("galaxy.yml", "rb") ;
+          data = yaml.safe_load(f) ;
+          f.close() ;
+          data["version"] = data.get("version") or "0.0.1" ;
+          f = open("galaxy.yml", "wb") ;
+          f.write(yaml.dump(data).encode("utf-8")) ;
+          f.close() ;
+          '
+        working-directory: ./checkout
 
       - name: Build collection
         run: ansible-galaxy collection build
