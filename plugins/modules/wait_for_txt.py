@@ -58,7 +58,7 @@ options:
     query_retry:
         description:
             - Number of retries for DNS query timeouts.
-        type: float
+        type: int
         default: 3
     query_timeout:
         description:
