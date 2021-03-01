@@ -75,6 +75,15 @@ options:
             - Maximal amount of seconds to sleep between two rounds of probing the TXT records.
         type: float
         default: 10
+    always_ask_default_resolver:
+        description:
+            - When set to C(true) (default), will use the default resolver to find the authoritative nameservers
+              of a subzone.
+            - When set to C(false), will use the authoritative nameservers of the parent zone to find the
+              authoritative nameservers of a subzone. This only makes sense when the nameservers were recently
+              changed and haven't propagated.
+        type: bool
+        default: true
 requirements:
     - dnspython
 '''
@@ -204,6 +213,7 @@ def main():
             query_timeout=dict(type='float', default=10),
             timeout=dict(type='float'),
             max_sleep=dict(type='float', default=10),
+            always_ask_default_resolver=dict(type='bool', default=True),
         ),
     )
     assert_requirements_present(module)
@@ -211,6 +221,7 @@ def main():
     resolver = ResolveDirectlyFromNameServers(
         timeout=module.params['query_timeout'],
         timeout_retries=module.params['query_retry'],
+        always_ask_default_resolver=module.params['always_ask_default_resolver'],
     )
     records = module.params['records']
     timeout = module.params['timeout']

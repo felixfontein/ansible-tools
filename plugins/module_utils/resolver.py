@@ -23,12 +23,13 @@ else:
 
 
 class ResolveDirectlyFromNameServers(object):
-    def __init__(self, timeout=10, timeout_retries=3):
+    def __init__(self, timeout=10, timeout_retries=3, always_ask_default_resolver=True):
         self.cache = {}
         self.timeout = timeout
         self.timeout_retries = timeout_retries
         self.default_resolver = dns.resolver.get_default_resolver()
         self.default_nameservers = self.default_resolver.nameservers
+        self.always_ask_default_resolver = always_ask_default_resolver
 
     def _handle_reponse_errors(self, target, response, accept_not_existing=False):
         rcode = response.rcode()
@@ -51,7 +52,10 @@ class ResolveDirectlyFromNameServers(object):
                     raise exc
                 retry += 1
 
-    def _lookup_ns_names(self, target, nameservers):
+    def _lookup_ns_names(self, target, nameservers=None):
+        if nameservers is None or self.always_ask_default_resolver:
+            nameservers = self.default_nameservers
+
         query = dns.message.make_query(target, dns.rdatatype.NS)
         response = self._handle_timeout(dns.query.udp, query, nameservers[0], timeout=self.timeout)
         self._handle_reponse_errors(target, response)
@@ -86,7 +90,7 @@ class ResolveDirectlyFromNameServers(object):
             target_part = target.split(i)[1]
             _nameservers = self.cache.get((str(target_part), 'ns'))
             if _nameservers is None:
-                nameserver_names, cname = self._lookup_ns_names(target_part, nameservers)
+                nameserver_names, cname = self._lookup_ns_names(target_part, nameservers=nameservers)
                 if nameserver_names is not None:
                     nameservers = []
                     for nameserver_name in nameserver_names:
