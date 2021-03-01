@@ -149,5 +149,5 @@ class ResolveDirectlyFromNameServers(object):
 
 
 def assert_requirements_present(module):
-    if DNSPYTHON_IMPORTERROR:
-        module.fail_json(msg=missing_required_lib('dnspython'))
+    if DNSPYTHON_IMPORTERROR is not None:
+        module.fail_json(msg=missing_required_lib('dnspython'), exception=DNSPYTHON_IMPORTERROR)
