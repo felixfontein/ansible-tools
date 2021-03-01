@@ -47,7 +47,6 @@ def test_assert_requirements_present():
     resolver.DNSPYTHON_IMPORTERROR = orig_importerror
 
 
-
 def mock_resolver(default_nameservers, nameserver_resolve_sequence):
     def create_resolver(configure=True):
         resolver = MagicMock()
