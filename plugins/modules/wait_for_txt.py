@@ -99,7 +99,7 @@ records:
     type: list
     elements: dict
     contains:
-        name: 
+        name:
             description:
                 - The DNS name this check is for.
             returned: always
