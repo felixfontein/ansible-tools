@@ -12,6 +12,7 @@ DOCUMENTATION = r'''
 ---
 module: wait_for_txt
 short_description: Wait for TXT entries to be available on all authoritative nameservers
+version_added: 1.4.0
 description:
     - Wait for TXT entries with specific values to show up on B(all) authoritative nameservers for the DNS name.
 author:
@@ -54,20 +55,25 @@ options:
                     - superset
                     - superset_not_empty
                     - equals
+    query_retry:
+        description:
+            - Number of retries for DNS query timeouts.
+        type: float
+        default: 3
     query_timeout:
         description:
             - Timeout per DNS query in seconds.
-        type: int
-        default: 20
+        type: float
+        default: 10
     timeout:
         description:
             - Global timeout for waiting for all records in seconds.
             - If not set, will wait indefinitely.
-        type: int
+        type: float
     max_sleep:
         description:
             - Maximal amount of seconds to sleep between two rounds of probing the TXT records.
-        type: int
+        type: float
         default: 10
 requirements:
     - dnspython
@@ -143,7 +149,6 @@ completed:
     sample: 3
 '''
 
-import os
 import time
 
 from ansible.module_utils.basic import AnsibleModule
@@ -195,14 +200,18 @@ def main():
                 values=dict(required=True, type='list', elements='str'),
                 mode=dict(type='str', default='subset', choices=['subset', 'superset', 'superset_not_empty', 'equals']),
             )),
-            query_timeout=dict(type='int', default=20),
-            timeout=dict(type='int'),
-            max_sleep=dict(type='int', default=10),
+            query_retry=dict(type='int', default=3),
+            query_timeout=dict(type='float', default=10),
+            timeout=dict(type='float'),
+            max_sleep=dict(type='float', default=10),
         ),
     )
     assert_requirements_present(module)
 
-    resolver = ResolveDirectlyFromNameServers(timeout=module.params['query_timeout'])
+    resolver = ResolveDirectlyFromNameServers(
+        timeout=module.params['query_timeout'],
+        timeout_retries=module.params['query_retry'],
+    )
     records = module.params['records']
     timeout = module.params['timeout']
     max_sleep = module.params['max_sleep']

@@ -9,6 +9,7 @@ from ansible.module_utils.basic import missing_required_lib
 
 try:
     import dns
+    import dns.exception
     import dns.name
     import dns.message
     import dns.query
@@ -22,9 +23,10 @@ else:
 
 
 class ResolveDirectlyFromNameServers(object):
-    def __init__(self, timeout=20):
+    def __init__(self, timeout=10, timeout_retries=3):
         self.cache = {}
         self.timeout = timeout
+        self.timeout_retries = timeout_retries
         self.default_resolver = dns.resolver.get_default_resolver()
         self.default_nameservers = self.default_resolver.nameservers
 
@@ -35,13 +37,23 @@ class ResolveDirectlyFromNameServers(object):
         if rcode == dns.rcode.NXDOMAIN:
             if accept_not_existing:
                 return False
-            raise Exception('%s does not exist.' % target)
+            raise dns.resolver.NXDOMAIN(qnames=[target], responses=[response])
         else:
             raise Exception('Error %s' % dns.rcode.to_text(rcode))
 
+    def _handle_timeout(self, function, *args, **kwargs):
+        retry = 0
+        while True:
+            try:
+                return function(*args, **kwargs)
+            except dns.exception.Timeout as exc:
+                if retry >= self.timeout_retries:
+                    raise exc
+                retry += 1
+
     def _lookup_ns_names(self, target, nameservers):
         query = dns.message.make_query(target, dns.rdatatype.NS)
-        response = dns.query.udp(query, nameservers[0], timeout=self.timeout)
+        response = self._handle_timeout(dns.query.udp, query, nameservers[0], timeout=self.timeout)
         self._handle_reponse_errors(target, response)
 
         rrset = None
@@ -63,7 +75,8 @@ class ResolveDirectlyFromNameServers(object):
     def _lookup_address(self, target):
         result = self.cache.get((target, 'addr'))
         if not result:
-            result = [str(res) for res in self.default_resolver.resolve(target, lifetime=self.timeout).rrset]
+            answer = self._handle_timeout(self.default_resolver.resolve, target, lifetime=self.timeout)
+            result = [str(res) for res in answer.rrset]
             self.cache[(target, 'addr')] = result
         return result
 
@@ -120,7 +133,7 @@ class ResolveDirectlyFromNameServers(object):
 
         resolver = self._get_resolver(dnsname, nameservers)
         try:
-            response = resolver.resolve(dnsname, **kwargs)
+            response = self._handle_timeout(resolver.resolve, dnsname, lifetime=self.timeout, **kwargs)
             if response.rrset:
                 return response.rrset
             return None
