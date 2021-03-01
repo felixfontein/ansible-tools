@@ -9,6 +9,7 @@ __metaclass__ = type
 import traceback
 
 from ansible.module_utils.basic import missing_required_lib
+from ansible.module_utils._text import to_text
 
 try:
     import dns
@@ -123,10 +124,10 @@ class ResolveDirectlyFromNameServers(object):
         return resolver
 
     def resolve_nameservers(self, target):
-        return self._lookup_ns(dns.name.from_unicode(target))
+        return self._lookup_ns(dns.name.from_unicode(to_text(target)))
 
     def resolve(self, target, **kwargs):
-        dnsname = dns.name.from_unicode(target)
+        dnsname = dns.name.from_unicode(to_text(target))
         loop_catcher = set()
         while True:
             nameservers = self._lookup_ns(dnsname)

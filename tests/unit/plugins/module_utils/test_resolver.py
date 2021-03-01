@@ -130,7 +130,7 @@ def test_resolver():
     })
     udp_sequence = [
         {
-            'query_target': dns.name.from_unicode('com'),
+            'query_target': dns.name.from_unicode(u'com'),
             'query_type': dns.rdatatype.NS,
             'nameserver': '1.1.1.1',
             'kwargs': {
@@ -143,7 +143,7 @@ def test_resolver():
             )]),
         },
         {
-            'query_target': dns.name.from_unicode('example.com'),
+            'query_target': dns.name.from_unicode(u'example.com'),
             'query_type': dns.rdatatype.NS,
             'nameserver': '1.1.1.1',
             'kwargs': {
