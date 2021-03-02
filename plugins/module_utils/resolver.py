@@ -35,16 +35,13 @@ class ResolveDirectlyFromNameServers(object):
         self.default_nameservers = self.default_resolver.nameservers
         self.always_ask_default_resolver = always_ask_default_resolver
 
-    def _handle_reponse_errors(self, target, response, accept_not_existing=False):
+    def _handle_reponse_errors(self, target, response):
         rcode = response.rcode()
         if rcode == dns.rcode.NOERROR:
             return True
         if rcode == dns.rcode.NXDOMAIN:
-            if accept_not_existing:
-                return False
-            raise dns.resolver.NXDOMAIN(qnames=[target], responses=[response])
-        else:
-            raise Exception('Error %s' % dns.rcode.to_text(rcode))
+            raise dns.resolver.NXDOMAIN(qnames=[target], responses={target: response})
+        raise Exception('Error %s' % dns.rcode.to_text(rcode))
 
     def _handle_timeout(self, function, *args, **kwargs):
         retry = 0

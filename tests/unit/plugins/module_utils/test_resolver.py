@@ -287,3 +287,48 @@ def test_timeout_failure():
                     resolver = ResolveDirectlyFromNameServers()
                     resolver.resolve_nameservers('example.com')
                 assert exc.value.kwargs['timeout'] == 4
+
+
+def test_error_nxdomain():
+    resolver = mock_resolver(['1.1.1.1'], {})
+    udp_sequence = [
+        {
+            'query_target': dns.name.from_unicode(u'com'),
+            'query_type': dns.rdatatype.NS,
+            'nameserver': '1.1.1.1',
+            'kwargs': {
+                'timeout': 10,
+            },
+            'result': create_mock_response(dns.rcode.NXDOMAIN),
+        },
+    ]
+    with patch('dns.resolver.get_default_resolver', resolver):
+        with patch('dns.resolver.Resolver', resolver):
+            with patch('dns.query.udp', mock_query_udp(udp_sequence)):
+                with pytest.raises(dns.resolver.NXDOMAIN) as exc:
+                    resolver = ResolveDirectlyFromNameServers()
+                    resolver.resolve_nameservers('example.com')
+                assert exc.value.kwargs['qnames'] == [dns.name.from_unicode(u'com')]
+
+
+def test_error_servfail():
+    resolver = mock_resolver(['1.1.1.1'], {})
+    udp_sequence = [
+        {
+            'query_target': dns.name.from_unicode(u'com'),
+            'query_type': dns.rdatatype.NS,
+            'nameserver': '1.1.1.1',
+            'kwargs': {
+                'timeout': 10,
+            },
+            'result': create_mock_response(dns.rcode.SERVFAIL),
+        },
+    ]
+    with patch('dns.resolver.get_default_resolver', resolver):
+        with patch('dns.resolver.Resolver', resolver):
+            with patch('dns.query.udp', mock_query_udp(udp_sequence)):
+                with pytest.raises(Exception) as exc:
+                    resolver = ResolveDirectlyFromNameServers()
+                    resolver.resolve_nameservers('example.com')
+                print(exc.value.args[0])
+                assert exc.value.args[0] == 'Error SERVFAIL'
