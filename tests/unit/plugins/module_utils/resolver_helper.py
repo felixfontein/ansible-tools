@@ -16,12 +16,13 @@ def mock_resolver(default_nameservers, nameserver_resolve_sequence):
         resolver = MagicMock()
         resolver.nameservers = default_nameservers if configure else []
 
-        def mock_resolver_resolve(target, lifetime=None):
+        def mock_resolver_resolve(target, rdtype=None, lifetime=None):
             resolve_sequence = nameserver_resolve_sequence[tuple(sorted(resolver.nameservers))]
             resolve_data = resolve_sequence[0]
             del resolve_sequence[0]
 
             assert target == resolve_data['target'], 'target: {0!r} vs {1!r}'.format(target, resolve_data['target'])
+            assert rdtype == resolve_data.get('rdtype'), 'rdtype: {0!r} vs {1!r}'.format(rdtype, resolve_data.get('rdtype'))
             assert lifetime == resolve_data['lifetime'], 'lifetime: {0!r} vs {1!r}'.format(lifetime, resolve_data['lifetime'])
 
             if 'raise' in resolve_data:
