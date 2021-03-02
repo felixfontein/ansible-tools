@@ -160,6 +160,11 @@ completed:
 
 import time
 
+try:
+    from time import monotonic
+except ImportError:
+    from time import clock as monotonic
+
 from ansible.module_utils.basic import AnsibleModule
 from ansible.module_utils._text import to_native, to_text
 
@@ -238,13 +243,13 @@ def main():
         }
     finished_checks = 0
 
-    start_time = time.clock()
+    start_time = monotonic()
     try:
         step = 0
         while True:
             has_timeout = False
             if timeout is not None:
-                expired = time.clock() - start_time
+                expired = monotonic() - start_time
                 has_timeout = expired > timeout
 
             done = True
@@ -276,7 +281,7 @@ def main():
             wait = min(2 + step * 0.5, max_sleep)
             if timeout is not None:
                 # Make sure we do not exceed the timeout by much by waiting
-                expired = time.clock() - start_time
+                expired = monotonic() - start_time
                 wait = max(min(wait, timeout - expired + 0.1), 0.1)
 
             time.sleep(wait)
