@@ -144,7 +144,7 @@ def test_resolver():
                 )),
             },
         ],
-        ('4.4.4.4', ): [
+        ('3.3.3.3', '4.4.4.4', ): [
             {
                 'target': dns.name.from_unicode(u'example.org'),
                 'lifetime': 10,
@@ -220,6 +220,7 @@ def test_resolver():
                 'example.org',
                 3600,
                 dns.rdata.from_text(dns.rdataclass.IN, dns.rdatatype.NS, 'ns.example.org'),
+                dns.rdata.from_text(dns.rdataclass.IN, dns.rdatatype.NS, 'ns.example.com'),
             )]),
         },
     ]
@@ -237,7 +238,7 @@ def test_resolver():
                 # The following results should be cached:
                 assert resolver.resolve_nameservers('com') == ['2.2.2.2']
                 assert resolver.resolve_nameservers('example.com') == ['3.3.3.3']
-                assert resolver.resolve_nameservers('example.org') == ['4.4.4.4']
+                assert resolver.resolve_nameservers('example.org') == ['3.3.3.3', '4.4.4.4']
 
 
 def test_timeout_handling():
@@ -429,10 +430,20 @@ def test_no_response():
                     'ns.example.com',
                     300,
                     dns.rdata.from_text(dns.rdataclass.IN, dns.rdatatype.A, '3.3.3.3'),
+                    dns.rdata.from_text(dns.rdataclass.IN, dns.rdatatype.A, '5.5.5.5'),
+                )),
+            },
+            {
+                'target': 'ns2.example.com',
+                'lifetime': 10,
+                'result': create_mock_answer(dns.rrset.from_rdata(
+                    'ns.example.com',
+                    300,
+                    dns.rdata.from_text(dns.rdataclass.IN, dns.rdatatype.A, '4.4.4.4'),
                 )),
             },
         ],
-        ('3.3.3.3', ): [
+        ('3.3.3.3', '4.4.4.4', '5.5.5.5'): [
             {
                 'target': dns.name.from_unicode(u'example.com'),
                 'lifetime': 10,
@@ -470,6 +481,7 @@ def test_no_response():
                 'example.com',
                 3600,
                 dns.rdata.from_text(dns.rdataclass.IN, dns.rdatatype.NS, 'ns.example.com'),
+                dns.rdata.from_text(dns.rdataclass.IN, dns.rdatatype.NS, 'ns2.example.com'),
             )]),
         },
     ]
@@ -482,6 +494,8 @@ def test_no_response():
                 # Second call raises NoAnswer instead of returning None
                 rrset = resolver.resolve('example.com')
                 assert rrset is None
+                # Verify nameserver IPs
+                assert resolver.resolve_nameservers('example.com') == ['3.3.3.3', '4.4.4.4', '5.5.5.5']
 
 
 def test_cname_loop():
