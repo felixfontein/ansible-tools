@@ -89,7 +89,7 @@ def mock_query_udp(call_sequence):
     return udp
 
 
-def create_mock_answer(rrset):
+def create_mock_answer(rrset=None):
     answer = MagicMock()
     answer.rrset = rrset
     return answer
@@ -181,7 +181,7 @@ def test_resolver():
                 'example.com',
                 3600,
                 dns.rdata.from_text(dns.rdataclass.IN, dns.rdatatype.NS, 'ns.example.com'),
-            )]),
+            )], cname=dns.name.from_unicode(u'example.com')),
         },
         {
             'query_target': dns.name.from_unicode(u'www.example.com'),
@@ -405,5 +405,197 @@ def test_error_servfail():
                 with pytest.raises(Exception) as exc:
                     resolver = ResolveDirectlyFromNameServers()
                     resolver.resolve_nameservers('example.com')
-                print(exc.value.args[0])
                 assert exc.value.args[0] == 'Error SERVFAIL'
+
+
+def test_no_response():
+    fake_query = MagicMock()
+    fake_query.question = 'Doctor Who?'
+    resolver = mock_resolver(['1.1.1.1'], {
+        ('1.1.1.1', ): [
+            {
+                'target': 'ns.com',
+                'lifetime': 10,
+                'result': create_mock_answer(dns.rrset.from_rdata(
+                    'ns.com',
+                    300,
+                    dns.rdata.from_text(dns.rdataclass.IN, dns.rdatatype.A, '2.2.2.2'),
+                )),
+            },
+            {
+                'target': 'ns.example.com',
+                'lifetime': 10,
+                'result': create_mock_answer(dns.rrset.from_rdata(
+                    'ns.example.com',
+                    300,
+                    dns.rdata.from_text(dns.rdataclass.IN, dns.rdatatype.A, '3.3.3.3'),
+                )),
+            },
+        ],
+        ('3.3.3.3', ): [
+            {
+                'target': dns.name.from_unicode(u'example.com'),
+                'lifetime': 10,
+                'result': create_mock_answer(),
+            },
+            {
+                'target': dns.name.from_unicode(u'example.com'),
+                'lifetime': 10,
+                'raise': dns.resolver.NoAnswer(response=fake_query),
+            },
+        ],
+    })
+    udp_sequence = [
+        {
+            'query_target': dns.name.from_unicode(u'com'),
+            'query_type': dns.rdatatype.NS,
+            'nameserver': '1.1.1.1',
+            'kwargs': {
+                'timeout': 10,
+            },
+            'result': create_mock_response(dns.rcode.NOERROR, answer=[dns.rrset.from_rdata(
+                'com',
+                3600,
+                dns.rdata.from_text(dns.rdataclass.IN, dns.rdatatype.NS, 'ns.com'),
+            )]),
+        },
+        {
+            'query_target': dns.name.from_unicode(u'example.com'),
+            'query_type': dns.rdatatype.NS,
+            'nameserver': '1.1.1.1',
+            'kwargs': {
+                'timeout': 10,
+            },
+            'result': create_mock_response(dns.rcode.NOERROR, answer=[dns.rrset.from_rdata(
+                'example.com',
+                3600,
+                dns.rdata.from_text(dns.rdataclass.IN, dns.rdatatype.NS, 'ns.example.com'),
+            )]),
+        },
+    ]
+    with patch('dns.resolver.get_default_resolver', resolver):
+        with patch('dns.resolver.Resolver', resolver):
+            with patch('dns.query.udp', mock_query_udp(udp_sequence)):
+                resolver = ResolveDirectlyFromNameServers()
+                rrset = resolver.resolve('example.com')
+                assert rrset is None
+                # Second call raises NoAnswer instead of returning None
+                rrset = resolver.resolve('example.com')
+                assert rrset is None
+
+
+def test_cname_loop():
+    resolver = mock_resolver(['1.1.1.1'], {
+        ('1.1.1.1', ): [
+            {
+                'target': 'ns.com',
+                'lifetime': 10,
+                'result': create_mock_answer(dns.rrset.from_rdata(
+                    'ns.com',
+                    300,
+                    dns.rdata.from_text(dns.rdataclass.IN, dns.rdatatype.A, '2.2.2.2'),
+                )),
+            },
+            {
+                'target': 'ns.example.com',
+                'lifetime': 10,
+                'result': create_mock_answer(dns.rrset.from_rdata(
+                    'ns.example.com',
+                    300,
+                    dns.rdata.from_text(dns.rdataclass.IN, dns.rdatatype.A, '3.3.3.3'),
+                )),
+            },
+            {
+                'target': 'ns.org',
+                'lifetime': 10,
+                'result': create_mock_answer(dns.rrset.from_rdata(
+                    'ns.com',
+                    300,
+                    dns.rdata.from_text(dns.rdataclass.IN, dns.rdatatype.A, '2.2.3.3'),
+                )),
+            },
+            {
+                'target': 'ns.example.org',
+                'lifetime': 10,
+                'result': create_mock_answer(dns.rrset.from_rdata(
+                    'ns.example.org',
+                    300,
+                    dns.rdata.from_text(dns.rdataclass.IN, dns.rdatatype.A, '4.4.4.4'),
+                )),
+            },
+        ],
+    })
+    udp_sequence = [
+        {
+            'query_target': dns.name.from_unicode(u'com'),
+            'query_type': dns.rdatatype.NS,
+            'nameserver': '1.1.1.1',
+            'kwargs': {
+                'timeout': 10,
+            },
+            'result': create_mock_response(dns.rcode.NOERROR, answer=[dns.rrset.from_rdata(
+                'com',
+                3600,
+                dns.rdata.from_text(dns.rdataclass.IN, dns.rdatatype.NS, 'ns.com'),
+            )]),
+        },
+        {
+            'query_target': dns.name.from_unicode(u'example.com'),
+            'query_type': dns.rdatatype.NS,
+            'nameserver': '1.1.1.1',
+            'kwargs': {
+                'timeout': 10,
+            },
+            'result': create_mock_response(dns.rcode.NOERROR, answer=[dns.rrset.from_rdata(
+                'example.com',
+                3600,
+                dns.rdata.from_text(dns.rdataclass.IN, dns.rdatatype.NS, 'ns.example.com'),
+            )], cname=dns.name.from_unicode(u'example.com')),
+        },
+        {
+            'query_target': dns.name.from_unicode(u'www.example.com'),
+            'query_type': dns.rdatatype.NS,
+            'nameserver': '1.1.1.1',
+            'kwargs': {
+                'timeout': 10,
+            },
+            'result': create_mock_response(dns.rcode.NOERROR, answer=[dns.rrset.from_rdata(
+                'www.example.com',
+                3600,
+                dns.rdata.from_text(dns.rdataclass.IN, dns.rdatatype.SOA, 'ns.example.com. ns.example.com. 12345 7200 120 2419200 10800'),
+            )], cname=dns.name.from_unicode(u'example.org')),
+        },
+        {
+            'query_target': dns.name.from_unicode(u'org'),
+            'query_type': dns.rdatatype.NS,
+            'nameserver': '1.1.1.1',
+            'kwargs': {
+                'timeout': 10,
+            },
+            'result': create_mock_response(dns.rcode.NOERROR, answer=[dns.rrset.from_rdata(
+                'org',
+                3600,
+                dns.rdata.from_text(dns.rdataclass.IN, dns.rdatatype.NS, 'ns.org'),
+            )]),
+        },
+        {
+            'query_target': dns.name.from_unicode(u'example.org'),
+            'query_type': dns.rdatatype.NS,
+            'nameserver': '1.1.1.1',
+            'kwargs': {
+                'timeout': 10,
+            },
+            'result': create_mock_response(dns.rcode.NOERROR, answer=[dns.rrset.from_rdata(
+                'example.org',
+                3600,
+                dns.rdata.from_text(dns.rdataclass.IN, dns.rdatatype.NS, 'ns.example.org'),
+            )], cname=dns.name.from_unicode(u'www.example.com')),
+        },
+    ]
+    with patch('dns.resolver.get_default_resolver', resolver):
+        with patch('dns.resolver.Resolver', resolver):
+            with patch('dns.query.udp', mock_query_udp(udp_sequence)):
+                resolver = ResolveDirectlyFromNameServers()
+                with pytest.raises(Exception) as exc:
+                    resolver.resolve('www.example.com')
+                assert exc.value.args[0] == 'Found CNAME loop starting at www.example.com'
