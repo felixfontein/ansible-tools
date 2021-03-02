@@ -177,7 +177,7 @@ except ImportError:
 
 
 def lookup(resolver, name):
-    txt = resolver.resolve(name, rdtype=dns.rdatatype.RdataType.TXT)
+    txt = resolver.resolve(name, rdtype=dns.rdatatype.TXT)
     if txt is None:
         return []
     result = []

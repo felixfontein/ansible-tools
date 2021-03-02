@@ -80,7 +80,7 @@ class TestWaitForTXT(ModuleTestCase):
             ('3.3.3.3', '4.4.4.4', ): [
                 {
                     'target': dns.name.from_unicode(u'example.org'),
-                    'rdtype': dns.rdatatype.RdataType.TXT,
+                    'rdtype': dns.rdatatype.TXT,
                     'lifetime': 10,
                     'result': create_mock_answer(dns.rrset.from_rdata(
                         'example.org',
