@@ -615,8 +615,6 @@ def test_cname_loop():
                 assert exc.value.args[0] == 'Found CNAME loop starting at www.example.com'
 
 
-
-
 def test_resolver_non_default():
     resolver = mock_resolver(['1.1.1.1'], {
         ('1.1.1.1', ): [
