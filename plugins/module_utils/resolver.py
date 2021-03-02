@@ -26,6 +26,10 @@ else:
     DNSPYTHON_IMPORTERROR = None
 
 
+class ResolverError(Exception):
+    pass
+
+
 class ResolveDirectlyFromNameServers(object):
     def __init__(self, timeout=10, timeout_retries=3, always_ask_default_resolver=True):
         self.cache = {}
@@ -41,7 +45,7 @@ class ResolveDirectlyFromNameServers(object):
             return True
         if rcode == dns.rcode.NXDOMAIN:
             raise dns.resolver.NXDOMAIN(qnames=[target], responses={target: response})
-        raise Exception('Error %s' % dns.rcode.to_text(rcode))
+        raise ResolverError('Error %s' % dns.rcode.to_text(rcode))
 
     def _handle_timeout(self, function, *args, **kwargs):
         retry = 0
@@ -133,7 +137,7 @@ class ResolveDirectlyFromNameServers(object):
                 break
             dnsname = cname
             if dnsname in loop_catcher:
-                raise Exception('Found CNAME loop starting at {0}'.format(target))
+                raise ResolverError('Found CNAME loop starting at {0}'.format(target))
             loop_catcher.add(dnsname)
 
         resolver = self._get_resolver(dnsname, nameservers)

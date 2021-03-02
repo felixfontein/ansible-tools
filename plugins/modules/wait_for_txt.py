@@ -165,11 +165,13 @@ from ansible.module_utils._text import to_native, to_text
 
 from ansible_collections.felixfontein.tools.plugins.module_utils.resolver import (
     ResolveDirectlyFromNameServers,
+    ResolverError,
     assert_requirements_present,
 )
 
 try:
     import dns.rdatatype
+    import dns.exception
 except ImportError:
     pass  # handled in assert_requirements_present()
 
@@ -279,9 +281,14 @@ def main():
 
             time.sleep(wait)
             step += 1
-    except Exception as e:
+    except ResolverError as e:
         module.fail_json(
-            msg='Unexpected error: {0}'.format(to_native(e)),
+            msg='Unexpected resolving error: {0}'.format(to_native(e)),
+            records=results,
+            completed=finished_checks)
+    except dns.exception.DNSException as e:
+        module.fail_json(
+            msg='Unexpected DNS error: {0}'.format(to_native(e)),
             records=results,
             completed=finished_checks)
 

@@ -16,6 +16,7 @@ from ansible_collections.felixfontein.tools.plugins.module_utils import resolver
 
 from ansible_collections.felixfontein.tools.plugins.module_utils.resolver import (
     ResolveDirectlyFromNameServers,
+    ResolverError,
     assert_requirements_present,
 )
 
@@ -353,7 +354,7 @@ def test_error_servfail():
     with patch('dns.resolver.get_default_resolver', resolver):
         with patch('dns.resolver.Resolver', resolver):
             with patch('dns.query.udp', mock_query_udp(udp_sequence)):
-                with pytest.raises(Exception) as exc:
+                with pytest.raises(ResolverError) as exc:
                     resolver = ResolveDirectlyFromNameServers()
                     resolver.resolve_nameservers('example.com')
                 assert exc.value.args[0] == 'Error SERVFAIL'
@@ -560,7 +561,7 @@ def test_cname_loop():
         with patch('dns.resolver.Resolver', resolver):
             with patch('dns.query.udp', mock_query_udp(udp_sequence)):
                 resolver = ResolveDirectlyFromNameServers()
-                with pytest.raises(Exception) as exc:
+                with pytest.raises(ResolverError) as exc:
                     resolver.resolve('www.example.com')
                 assert exc.value.args[0] == 'Found CNAME loop starting at www.example.com'
 
