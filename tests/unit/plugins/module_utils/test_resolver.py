@@ -163,3 +163,127 @@ def test_resolver():
                 # The following results should be cached:
                 assert resolver.resolve_nameservers('com') == ['2.2.2.2']
                 assert resolver.resolve_nameservers('example.com') == ['3.3.3.3']
+
+
+def test_timeout_handling():
+    resolver = mock_resolver(['1.1.1.1'], {
+        ('1.1.1.1', ): [
+            {
+                'target': 'ns.com',
+                'lifetime': 10,
+                'raise': dns.exception.Timeout(timeout=10),
+            },
+            {
+                'target': 'ns.com',
+                'lifetime': 10,
+                'result': create_mock_answer(dns.rrset.from_rdata(
+                    'ns.com',
+                    300,
+                    dns.rdata.from_text(dns.rdataclass.IN, dns.rdatatype.A, '2.2.2.2'),
+                )),
+            },
+            {
+                'target': 'ns.example.com',
+                'lifetime': 10,
+                'result': create_mock_answer(dns.rrset.from_rdata(
+                    'ns.example.com',
+                    300,
+                    dns.rdata.from_text(dns.rdataclass.IN, dns.rdatatype.A, '3.3.3.3'),
+                )),
+            },
+        ],
+    })
+    udp_sequence = [
+        {
+            'query_target': dns.name.from_unicode(u'com'),
+            'query_type': dns.rdatatype.NS,
+            'nameserver': '1.1.1.1',
+            'kwargs': {
+                'timeout': 10,
+            },
+            'raise': dns.exception.Timeout(timeout=10),
+        },
+        {
+            'query_target': dns.name.from_unicode(u'com'),
+            'query_type': dns.rdatatype.NS,
+            'nameserver': '1.1.1.1',
+            'kwargs': {
+                'timeout': 10,
+            },
+            'result': create_mock_response(dns.rcode.NOERROR, answer=[dns.rrset.from_rdata(
+                'com',
+                3600,
+                dns.rdata.from_text(dns.rdataclass.IN, dns.rdatatype.NS, 'ns.com'),
+            )]),
+        },
+        {
+            'query_target': dns.name.from_unicode(u'example.com'),
+            'query_type': dns.rdatatype.NS,
+            'nameserver': '1.1.1.1',
+            'kwargs': {
+                'timeout': 10,
+            },
+            'result': create_mock_response(dns.rcode.NOERROR, answer=[dns.rrset.from_rdata(
+                'example.com',
+                3600,
+                dns.rdata.from_text(dns.rdataclass.IN, dns.rdatatype.NS, 'ns.example.com'),
+            )]),
+        },
+    ]
+    with patch('dns.resolver.get_default_resolver', resolver):
+        with patch('dns.resolver.Resolver', resolver):
+            with patch('dns.query.udp', mock_query_udp(udp_sequence)):
+                resolver = ResolveDirectlyFromNameServers()
+                assert resolver.resolve_nameservers('example.com') == ['3.3.3.3']
+                # The following results should be cached:
+                assert resolver.resolve_nameservers('com') == ['2.2.2.2']
+                assert resolver.resolve_nameservers('example.com') == ['3.3.3.3']
+
+
+def test_timeout_failure():
+    resolver = mock_resolver(['1.1.1.1'], {})
+    udp_sequence = [
+        {
+            'query_target': dns.name.from_unicode(u'com'),
+            'query_type': dns.rdatatype.NS,
+            'nameserver': '1.1.1.1',
+            'kwargs': {
+                'timeout': 10,
+            },
+            'raise': dns.exception.Timeout(timeout=1),
+        },
+        {
+            'query_target': dns.name.from_unicode(u'com'),
+            'query_type': dns.rdatatype.NS,
+            'nameserver': '1.1.1.1',
+            'kwargs': {
+                'timeout': 10,
+            },
+            'raise': dns.exception.Timeout(timeout=2),
+        },
+        {
+            'query_target': dns.name.from_unicode(u'com'),
+            'query_type': dns.rdatatype.NS,
+            'nameserver': '1.1.1.1',
+            'kwargs': {
+                'timeout': 10,
+            },
+            'raise': dns.exception.Timeout(timeout=3),
+        },
+        {
+            'query_target': dns.name.from_unicode(u'com'),
+            'query_type': dns.rdatatype.NS,
+            'nameserver': '1.1.1.1',
+            'kwargs': {
+                'timeout': 10,
+            },
+            'raise': dns.exception.Timeout(timeout=4),
+        },
+    ]
+    with patch('dns.resolver.get_default_resolver', resolver):
+        with patch('dns.resolver.Resolver', resolver):
+            with patch('dns.query.udp', mock_query_udp(udp_sequence)):
+                with pytest.raises(dns.exception.Timeout) as exc:
+                    resolver = ResolveDirectlyFromNameServers()
+                    resolver.resolve_nameservers('example.com')
+                assert exc.value.kwargs['timeout'] == 4
