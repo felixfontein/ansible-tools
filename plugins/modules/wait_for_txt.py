@@ -238,13 +238,13 @@ def main():
         }
     finished_checks = 0
 
-    start_time = time.monotonic()
+    start_time = time.clock()
     try:
         step = 0
         while True:
             has_timeout = False
             if timeout is not None:
-                expired = time.monotonic() - start_time
+                expired = time.clock() - start_time
                 has_timeout = expired > timeout
 
             done = True
@@ -276,7 +276,7 @@ def main():
             wait = min(2 + step * 0.5, max_sleep)
             if timeout is not None:
                 # Make sure we do not exceed the timeout by much by waiting
-                expired = time.monotonic() - start_time
+                expired = time.clock() - start_time
                 wait = max(min(wait, timeout - expired + 0.1), 0.1)
 
             time.sleep(wait)
