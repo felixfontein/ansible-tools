@@ -125,6 +125,35 @@ def test_resolver():
                     dns.rdata.from_text(dns.rdataclass.IN, dns.rdatatype.A, '3.3.3.3'),
                 )),
             },
+            {
+                'target': 'ns.org',
+                'lifetime': 10,
+                'result': create_mock_answer(dns.rrset.from_rdata(
+                    'ns.com',
+                    300,
+                    dns.rdata.from_text(dns.rdataclass.IN, dns.rdatatype.A, '2.2.3.3'),
+                )),
+            },
+            {
+                'target': 'ns.example.org',
+                'lifetime': 10,
+                'result': create_mock_answer(dns.rrset.from_rdata(
+                    'ns.example.org',
+                    300,
+                    dns.rdata.from_text(dns.rdataclass.IN, dns.rdatatype.A, '4.4.4.4'),
+                )),
+            },
+        ],
+        ('4.4.4.4', ): [
+            {
+                'target': dns.name.from_unicode(u'example.org'),
+                'lifetime': 10,
+                'result': create_mock_answer(dns.rrset.from_rdata(
+                    'example.org',
+                    300,
+                    dns.rdata.from_text(dns.rdataclass.IN, dns.rdatatype.A, '1.2.3.4'),
+                )),
+            },
         ],
     })
     udp_sequence = [
@@ -154,15 +183,61 @@ def test_resolver():
                 dns.rdata.from_text(dns.rdataclass.IN, dns.rdatatype.NS, 'ns.example.com'),
             )]),
         },
+        {
+            'query_target': dns.name.from_unicode(u'www.example.com'),
+            'query_type': dns.rdatatype.NS,
+            'nameserver': '1.1.1.1',
+            'kwargs': {
+                'timeout': 10,
+            },
+            'result': create_mock_response(dns.rcode.NOERROR, answer=[dns.rrset.from_rdata(
+                'www.example.com',
+                3600,
+                dns.rdata.from_text(dns.rdataclass.IN, dns.rdatatype.SOA, 'ns.example.com. ns.example.com. 12345 7200 120 2419200 10800'),
+            )], cname=dns.name.from_unicode(u'example.org')),
+        },
+        {
+            'query_target': dns.name.from_unicode(u'org'),
+            'query_type': dns.rdatatype.NS,
+            'nameserver': '1.1.1.1',
+            'kwargs': {
+                'timeout': 10,
+            },
+            'result': create_mock_response(dns.rcode.NOERROR, answer=[dns.rrset.from_rdata(
+                'org',
+                3600,
+                dns.rdata.from_text(dns.rdataclass.IN, dns.rdatatype.NS, 'ns.org'),
+            )]),
+        },
+        {
+            'query_target': dns.name.from_unicode(u'example.org'),
+            'query_type': dns.rdatatype.NS,
+            'nameserver': '1.1.1.1',
+            'kwargs': {
+                'timeout': 10,
+            },
+            'result': create_mock_response(dns.rcode.NOERROR, answer=[dns.rrset.from_rdata(
+                'example.org',
+                3600,
+                dns.rdata.from_text(dns.rdataclass.IN, dns.rdatatype.NS, 'ns.example.org'),
+            )]),
+        },
     ]
     with patch('dns.resolver.get_default_resolver', resolver):
         with patch('dns.resolver.Resolver', resolver):
             with patch('dns.query.udp', mock_query_udp(udp_sequence)):
                 resolver = ResolveDirectlyFromNameServers()
                 assert resolver.resolve_nameservers('example.com') == ['3.3.3.3']
+                # www.example.com is a CNAME for example.org
+                rrset = resolver.resolve('www.example.com')
+                assert len(rrset) == 1
+                assert rrset.name == dns.name.from_unicode(u'example.org', origin=None)
+                assert rrset.rdtype == dns.rdatatype.A
+                assert rrset[0].to_text() == u'1.2.3.4'
                 # The following results should be cached:
                 assert resolver.resolve_nameservers('com') == ['2.2.2.2']
                 assert resolver.resolve_nameservers('example.com') == ['3.3.3.3']
+                assert resolver.resolve_nameservers('example.org') == ['4.4.4.4']
 
 
 def test_timeout_handling():
@@ -223,7 +298,7 @@ def test_timeout_handling():
             'kwargs': {
                 'timeout': 10,
             },
-            'result': create_mock_response(dns.rcode.NOERROR, answer=[dns.rrset.from_rdata(
+            'result': create_mock_response(dns.rcode.NOERROR, authority=[dns.rrset.from_rdata(
                 'example.com',
                 3600,
                 dns.rdata.from_text(dns.rdataclass.IN, dns.rdatatype.NS, 'ns.example.com'),
