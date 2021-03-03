@@ -1,0 +1,20 @@
+---
+- name: "Test list_to_dict filter"
+  assert:
+    that:
+      - "[1, 2, 3] | felixfontein.tools.list_to_dict(['k1', 'k2']) == result_1"
+      - "[1, 2] | felixfontein.tools.list_to_dict(['k1', 'k2', 'k3']) == result_1"
+      - "[] | felixfontein.tools.list_to_dict(['k1', 'k2', 'k3']) == dict([])"
+      - "[1, 2, 3] | felixfontein.tools.list_to_dict([]) == dict([])"
+      - "[] | felixfontein.tools.list_to_dict([]) == dict([])"
+  vars:
+    result_1:
+      k1: 1
+      k2: 2
+
+- name: "Test dict filter"
+  assert:
+    that:
+      - "[['a', 'b']] | felixfontein.tools.dict == dict([['a', 'b']])"
+      - "[['a', 'b'], [1, 2]] | felixfontein.tools.dict == dict([['a', 'b'], [1, 2]])"
+      - "[] | felixfontein.tools.dict == dict([])"
