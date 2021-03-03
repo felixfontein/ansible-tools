@@ -1114,7 +1114,8 @@ class TestWaitForTXT(ModuleTestCase):
             with patch('dns.resolver.Resolver', resolver):
                 with patch('dns.query.udp', mock_query_udp(udp_sequence)):
                     with patch('time.sleep', mock_sleep):
-                        with patch('ansible_collections.felixfontein.tools.plugins.modules.wait_for_txt.monotonic', mock_monotonic([0, 0.01, 1.2, 6.013, 7.41, 12.021])):
+                        with patch('ansible_collections.felixfontein.tools.plugins.modules.wait_for_txt.monotonic',
+                                   mock_monotonic([0, 0.01, 1.2, 6.013, 7.41, 12.021])):
                             with pytest.raises(AnsibleFailJson) as exc:
                                 set_module_args({
                                     'records': [
