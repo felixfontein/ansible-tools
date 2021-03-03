@@ -1,0 +1,9 @@
+---
+- name: Wait for existing TXT entry
+  wait_for_txt:
+    records:
+      - name: github.com
+        values: "{{ query('community.general.dig', 'github.com', 'qtype=TXT') }}"
+      - name: github.io
+        values: []
+    timeout: 0
