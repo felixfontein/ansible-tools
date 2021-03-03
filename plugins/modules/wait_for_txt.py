@@ -48,6 +48,8 @@ options:
                       values set for the DNS name, assuming at least one TXT record is present.
                     - If C(equals), I(values) should be the same set of strings as the TXT values for the DNS name
                       (up to order).
+                    - If C(equals_ordered), I(values) should be the same ordered list of strings as the TXT values
+                      for the DNS name.
                 type: str
                 default: subset
                 choices:
@@ -55,6 +57,7 @@ options:
                     - superset
                     - superset_not_empty
                     - equals
+                    - equals_ordered
     query_retry:
         description:
             - Number of retries for DNS query timeouts.
@@ -130,6 +133,8 @@ records:
             description:
                 - The TXT records for this DNS name during the last lookup made.
                 - Once the check is done, the TXT records for this DNS name are no longer checked.
+                - If these are multiple entries, the order is as it was received from DNS. This might
+                  not be the same order provided in the check.
             returned: lookup was done at least once
             type: list
             elements: str
@@ -203,7 +208,10 @@ def validate_check(record_values, expected_values, comparison_mode):
         return bool(record_values) and set(expected_values) >= set(record_values)
 
     if comparison_mode == 'equals':
-        return record_values == sorted(expected_values)
+        return sorted(record_values) == sorted(expected_values)
+
+    if comparison_mode == 'equals_ordered':
+        return record_values == expected_values
 
     raise Exception('Internal error!')
 
@@ -214,7 +222,7 @@ def main():
             records=dict(required=True, type='list', elements='dict', options=dict(
                 name=dict(required=True, type='str'),
                 values=dict(required=True, type='list', elements='str'),
-                mode=dict(type='str', default='subset', choices=['subset', 'superset', 'superset_not_empty', 'equals']),
+                mode=dict(type='str', default='subset', choices=['subset', 'superset', 'superset_not_empty', 'equals', 'equals_ordered']),
             )),
             query_retry=dict(type='int', default=3),
             query_timeout=dict(type='float', default=10),

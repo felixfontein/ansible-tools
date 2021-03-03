@@ -17,7 +17,10 @@ def mock_resolver(default_nameservers, nameserver_resolve_sequence):
         resolver.nameservers = default_nameservers if configure else []
 
         def mock_resolver_resolve(target, rdtype=None, lifetime=None):
-            resolve_sequence = nameserver_resolve_sequence[tuple(sorted(resolver.nameservers))]
+            resolver_index = tuple(sorted(resolver.nameservers))
+            assert resolver_index in nameserver_resolve_sequence, 'No resolver sequence for {0}'.format(resolver_index)
+            resolve_sequence = nameserver_resolve_sequence[resolver_index]
+            assert len(resolve_sequence) > 0, 'Resolver sequence for {0} is empty'.format(resolver_index)
             resolve_data = resolve_sequence[0]
             del resolve_sequence[0]
 
@@ -38,6 +41,7 @@ def mock_resolver(default_nameservers, nameserver_resolve_sequence):
 
 def mock_query_udp(call_sequence):
     def udp(query, nameserver, **kwargs):
+        assert len(call_sequence) > 0, 'UDP query call sequence is empty'
         call = call_sequence[0]
         del call_sequence[0]
 
