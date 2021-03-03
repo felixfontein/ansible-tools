@@ -88,7 +88,7 @@ options:
         type: bool
         default: true
 requirements:
-    - dnspython >= 1.16.0 (maybe older versions also work)
+    - dnspython >= 1.15.0 (maybe older versions also work)
 '''
 
 EXAMPLES = r'''

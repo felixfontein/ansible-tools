@@ -89,7 +89,12 @@ class ResolveDirectlyFromNameServers(object):
             except AttributeError:
                 # For dnspython < 2.0.0
                 self.default_resolver.search = False
-                answer = self._handle_timeout(self.default_resolver.query, target, lifetime=self.timeout)
+                try:
+                    answer = self._handle_timeout(self.default_resolver.query, target, lifetime=self.timeout)
+                except TypeError:
+                    # For dnspython < 1.6.0
+                    self.default_resolver.lifetime = self.timeout
+                    answer = self._handle_timeout(self.default_resolver.query, target)
             result = [str(res) for res in answer.rrset]
             self.cache[(target, 'addr')] = result
         return result
@@ -152,7 +157,12 @@ class ResolveDirectlyFromNameServers(object):
             except AttributeError:
                 # For dnspython < 2.0.0
                 resolver.search = False
-                response = self._handle_timeout(resolver.query, dnsname, lifetime=self.timeout, **kwargs)
+                try:
+                    response = self._handle_timeout(resolver.query, dnsname, lifetime=self.timeout, **kwargs)
+                except TypeError:
+                    # For dnspython < 1.6.0
+                    resolver.lifetime = self.timeout
+                    response = self._handle_timeout(resolver.query, dnsname, **kwargs)
             if response.rrset:
                 return response.rrset
             return None
