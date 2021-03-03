@@ -76,6 +76,11 @@ ok: [localhost] => (item={0: 2, 1: 8, 2: 82}) => {
 }
 ```
 
+### Dictionary filters
+
+- `felixfontein.tools.dict`: similar to the `dict` function, converts a list of tuples to a dictionary: `[['a', 1], ['b', 2]] | felixfontein.tools.dict` evaluates to `{'a': 1, 'b': 2}`.
+- `felixfontein.tools.list_to_dict`: given a list of values and keys, converts them to a dictionary: `[1, 2] | felixfontein.tools.list_to_dict(['a', 'b'])` evaluates to `{'a': 1, 'b': 2}`.
+
 ### Filters for working with domain names
 
 - `felixfontein.tools.dns_zone`: given a domain name, returns the DNS zone, i.e. the label before the public suffix and the public suffix. For example, `"www.ansible.com" | felixfontein.tools.dns_zone == "ansible.com"` and `"some.random.prefixes.ansible.co.uk" | felixfontein.tools.dns_zone == "ansible.co.uk"`. This usually equals the *registrable domain* or *registered domain*.
