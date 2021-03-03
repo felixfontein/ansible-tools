@@ -65,26 +65,36 @@ class ResolveDirectlyFromNameServers(object):
         response = self._handle_timeout(dns.query.udp, query, nameservers[0], timeout=self.timeout)
         self._handle_reponse_errors(target, response)
 
-        rrset = None
-        if len(response.authority) > 0:
-            rrset = response.authority[0]
-        else:
-            rrset = response.answer[0]
+        cname = None
+        for rrset in response.answer:
+            if rrset.rdtype == dns.rdatatype.CNAME:
+                cname = dns.name.from_text(to_text(rrset[0]))
 
-        cname = response.canonical_name()
-        if cname == target:
-            cname = None
-
-        rr = rrset[0]
-        if rr.rdtype != dns.rdatatype.SOA:
-            return [str(ns_record.target) for ns_record in rrset], cname
-        else:
-            return None, cname
+        new_nameservers = []
+        rrsets = list(response.authority)
+        rrsets.extend(response.answer)
+        for rrset in rrsets:
+            if rrset.rdtype == dns.rdatatype.SOA:
+                # We keep the current nameservers
+                return None, cname
+            if rrset.rdtype == dns.rdatatype.NS:
+                new_nameservers.extend(str(ns_record.target) for ns_record in rrset)
+        return sorted(set(new_nameservers)), cname
 
     def _lookup_address(self, target):
         result = self.cache.get((target, 'addr'))
         if not result:
-            answer = self._handle_timeout(self.default_resolver.resolve, target, lifetime=self.timeout)
+            try:
+                answer = self._handle_timeout(self.default_resolver.resolve, target, lifetime=self.timeout)
+            except AttributeError:
+                # For dnspython < 2.0.0
+                self.default_resolver.search = False
+                try:
+                    answer = self._handle_timeout(self.default_resolver.query, target, lifetime=self.timeout)
+                except TypeError:
+                    # For dnspython < 1.6.0
+                    self.default_resolver.lifetime = self.timeout
+                    answer = self._handle_timeout(self.default_resolver.query, target)
             result = [str(res) for res in answer.rrset]
             self.cache[(target, 'addr')] = result
         return result
@@ -142,7 +152,17 @@ class ResolveDirectlyFromNameServers(object):
 
         resolver = self._get_resolver(dnsname, nameservers)
         try:
-            response = self._handle_timeout(resolver.resolve, dnsname, lifetime=self.timeout, **kwargs)
+            try:
+                response = self._handle_timeout(resolver.resolve, dnsname, lifetime=self.timeout, **kwargs)
+            except AttributeError:
+                # For dnspython < 2.0.0
+                resolver.search = False
+                try:
+                    response = self._handle_timeout(resolver.query, dnsname, lifetime=self.timeout, **kwargs)
+                except TypeError:
+                    # For dnspython < 1.6.0
+                    resolver.lifetime = self.timeout
+                    response = self._handle_timeout(resolver.query, dnsname, **kwargs)
             if response.rrset:
                 return response.rrset
             return None

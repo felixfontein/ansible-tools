@@ -128,7 +128,7 @@ jobs:
           - stable-2.10
           - devel
         python:
-          # - 2.6   -- we have nothing that uses it yet
+          - 2.6
           - 2.7
           - 3.5
           - 3.6
@@ -154,6 +154,10 @@ jobs:
 
       - name: Install ansible-base (${{ matrix.ansible }})
         run: pip install https://github.com/ansible/ansible/archive/${{ matrix.ansible }}.tar.gz --disable-pip-version-check
+
+      # Install dependencies
+      - name: Install collection dependencies
+        run: ansible-galaxy collection install community.general -p .
 
       # Run the integration tests
       - name: Run integration test
