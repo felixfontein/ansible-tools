@@ -64,10 +64,9 @@ def create_mock_answer(rrset=None):
     return answer
 
 
-def create_mock_response(rcode, authority=None, answer=None, cname=None):
+def create_mock_response(rcode, authority=None, answer=None):
     response = MagicMock()
     response.rcode = MagicMock(return_value=rcode)
     response.authority = authority or []
     response.answer = answer or []
-    response.canonical_name = MagicMock(return_value=cname)
     return response

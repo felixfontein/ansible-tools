@@ -132,7 +132,7 @@ def test_resolver():
                 'example.com',
                 3600,
                 dns.rdata.from_text(dns.rdataclass.IN, dns.rdatatype.NS, 'ns.example.com'),
-            )], cname=dns.name.from_unicode(u'example.com')),
+            )]),
         },
         {
             'query_target': dns.name.from_unicode(u'www.example.com'),
@@ -145,7 +145,11 @@ def test_resolver():
                 'www.example.com',
                 3600,
                 dns.rdata.from_text(dns.rdataclass.IN, dns.rdatatype.SOA, 'ns.example.com. ns.example.com. 12345 7200 120 2419200 10800'),
-            )], cname=dns.name.from_unicode(u'example.org')),
+            ), dns.rrset.from_rdata(
+                'www.example.com',
+                3600,
+                dns.rdata.from_text(dns.rdataclass.IN, dns.rdatatype.CNAME, 'example.org')
+            )]),
         },
         {
             'query_target': dns.name.from_unicode(u'org'),
@@ -515,7 +519,7 @@ def test_cname_loop():
                 'example.com',
                 3600,
                 dns.rdata.from_text(dns.rdataclass.IN, dns.rdatatype.NS, 'ns.example.com'),
-            )], cname=dns.name.from_unicode(u'example.com')),
+            )]),
         },
         {
             'query_target': dns.name.from_unicode(u'www.example.com'),
@@ -528,7 +532,11 @@ def test_cname_loop():
                 'www.example.com',
                 3600,
                 dns.rdata.from_text(dns.rdataclass.IN, dns.rdatatype.SOA, 'ns.example.com. ns.example.com. 12345 7200 120 2419200 10800'),
-            )], cname=dns.name.from_unicode(u'example.org')),
+            ), dns.rrset.from_rdata(
+                'www.example.com',
+                3600,
+                dns.rdata.from_text(dns.rdataclass.IN, dns.rdatatype.CNAME, 'example.org')
+            )]),
         },
         {
             'query_target': dns.name.from_unicode(u'org'),
@@ -554,7 +562,11 @@ def test_cname_loop():
                 'example.org',
                 3600,
                 dns.rdata.from_text(dns.rdataclass.IN, dns.rdatatype.NS, 'ns.example.org'),
-            )], cname=dns.name.from_unicode(u'www.example.com')),
+            ), dns.rrset.from_rdata(
+                'example.org',
+                3600,
+                dns.rdata.from_text(dns.rdataclass.IN, dns.rdatatype.CNAME, 'www.example.com')
+            )]),
         },
     ]
     with patch('dns.resolver.get_default_resolver', resolver):
@@ -643,7 +655,7 @@ def test_resolver_non_default():
                 'example.com',
                 3600,
                 dns.rdata.from_text(dns.rdataclass.IN, dns.rdatatype.NS, 'ns.example.com'),
-            )], cname=dns.name.from_unicode(u'example.com')),
+            )]),
         },
         {
             'query_target': dns.name.from_unicode(u'www.example.com'),
@@ -656,7 +668,11 @@ def test_resolver_non_default():
                 'www.example.com',
                 3600,
                 dns.rdata.from_text(dns.rdataclass.IN, dns.rdatatype.SOA, 'ns.example.com. ns.example.com. 12345 7200 120 2419200 10800'),
-            )], cname=dns.name.from_unicode(u'example.org')),
+            ), dns.rrset.from_rdata(
+                'www.example.com',
+                3600,
+                dns.rdata.from_text(dns.rdataclass.IN, dns.rdatatype.CNAME, 'example.org')
+            )]),
         },
         {
             'query_target': dns.name.from_unicode(u'org'),
