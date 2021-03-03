@@ -17,10 +17,10 @@
       - success.completed == 2
       - success.records | length == 2
       - success.records[0].name == 'github.com'
-      - success.records[0].done is true
+      - success.records[0].done == true
       - success.records[0].check_count == 1
       - success.records[1].name == 'github.io'
-      - success.records[1].done is true
+      - success.records[1].done == true
       - success.records[1].check_count == 1
 
 - name: Wait for non-existing TXT entry
@@ -41,6 +41,6 @@
       - timeout.completed == 0
       - timeout.records | length == 1
       - timeout.records[0].name == 'github.com'
-      - timeout.records[0].done is false
+      - timeout.records[0].done == false
       - "'values' in timeout.records[0]"
       - timeout.records[0].check_count == 1
