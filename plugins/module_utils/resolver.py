@@ -142,7 +142,7 @@ class ResolveDirectlyFromNameServers(object):
             for nameserver in nameservers:
                 nameserver_ips.update(self._lookup_address(nameserver))
             resolver.nameservers = sorted(nameserver_ips)
-            self.cache[(cache_index, 'resolver')] = resolver
+            self.cache[cache_index] = resolver
         return resolver
 
     def resolve_nameservers(self, target, resolve_addresses=False):
