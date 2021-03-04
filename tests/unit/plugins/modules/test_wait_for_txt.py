@@ -51,30 +51,12 @@ class TestWaitForTXT(ModuleTestCase):
         resolver = mock_resolver(['1.1.1.1'], {
             ('1.1.1.1', ): [
                 {
-                    'target': 'ns.com',
-                    'lifetime': 10,
-                    'result': create_mock_answer(dns.rrset.from_rdata(
-                        'ns.com',
-                        300,
-                        dns.rdata.from_text(dns.rdataclass.IN, dns.rdatatype.A, '2.2.2.2'),
-                    )),
-                },
-                {
                     'target': 'ns.example.com',
                     'lifetime': 10,
                     'result': create_mock_answer(dns.rrset.from_rdata(
                         'ns.example.com',
                         300,
                         dns.rdata.from_text(dns.rdataclass.IN, dns.rdatatype.A, '3.3.3.3'),
-                    )),
-                },
-                {
-                    'target': 'ns.org',
-                    'lifetime': 10,
-                    'result': create_mock_answer(dns.rrset.from_rdata(
-                        'ns.com',
-                        300,
-                        dns.rdata.from_text(dns.rdataclass.IN, dns.rdatatype.A, '2.2.3.3'),
                     )),
                 },
                 {
@@ -87,7 +69,19 @@ class TestWaitForTXT(ModuleTestCase):
                     )),
                 },
             ],
-            ('3.3.3.3', '4.4.4.4', ): [
+            ('3.3.3.3', ): [
+                {
+                    'target': dns.name.from_unicode(u'example.org'),
+                    'rdtype': dns.rdatatype.TXT,
+                    'lifetime': 10,
+                    'result': create_mock_answer(dns.rrset.from_rdata(
+                        'example.org',
+                        300,
+                        dns.rdata.from_text(dns.rdataclass.IN, dns.rdatatype.TXT, 'asdf'),
+                    )),
+                },
+            ],
+            ('4.4.4.4', ): [
                 {
                     'target': dns.name.from_unicode(u'example.org'),
                     'rdtype': dns.rdatatype.TXT,
@@ -195,21 +189,15 @@ class TestWaitForTXT(ModuleTestCase):
         assert len(exc.value.args[0]['records']) == 1
         assert exc.value.args[0]['records'][0]['name'] == 'www.example.com'
         assert exc.value.args[0]['records'][0]['done'] is True
-        assert exc.value.args[0]['records'][0]['values'] == ['asdf']
+        assert exc.value.args[0]['records'][0]['values'] == {
+            'ns.example.com': ['asdf'],
+            'ns.example.org': ['asdf'],
+        }
         assert exc.value.args[0]['records'][0]['check_count'] == 1
 
     def test_double(self):
         resolver = mock_resolver(['1.1.1.1'], {
             ('1.1.1.1', ): [
-                {
-                    'target': 'ns.com',
-                    'lifetime': 10,
-                    'result': create_mock_answer(dns.rrset.from_rdata(
-                        'ns.com',
-                        300,
-                        dns.rdata.from_text(dns.rdataclass.IN, dns.rdatatype.A, '2.2.2.2'),
-                    )),
-                },
                 {
                     'target': 'ns.example.com',
                     'lifetime': 10,
@@ -351,25 +339,20 @@ class TestWaitForTXT(ModuleTestCase):
         assert len(exc.value.args[0]['records']) == 2
         assert exc.value.args[0]['records'][0]['name'] == 'www.example.com'
         assert exc.value.args[0]['records'][0]['done'] is True
-        assert exc.value.args[0]['records'][0]['values'] == ['asdf']
+        assert exc.value.args[0]['records'][0]['values'] == {
+            'ns.example.com': ['asdf'],
+        }
         assert exc.value.args[0]['records'][0]['check_count'] == 3
         assert exc.value.args[0]['records'][1]['name'] == 'mail.example.com'
         assert exc.value.args[0]['records'][1]['done'] is True
-        assert exc.value.args[0]['records'][1]['values'] == ['any bar']
+        assert exc.value.args[0]['records'][1]['values'] == {
+            'ns.example.com': ['any bar'],
+        }
         assert exc.value.args[0]['records'][1]['check_count'] == 1
 
     def test_subset(self):
         resolver = mock_resolver(['1.1.1.1'], {
             ('1.1.1.1', ): [
-                {
-                    'target': 'ns.com',
-                    'lifetime': 10,
-                    'result': create_mock_answer(dns.rrset.from_rdata(
-                        'ns.com',
-                        300,
-                        dns.rdata.from_text(dns.rdataclass.IN, dns.rdatatype.A, '2.2.2.2'),
-                    )),
-                },
                 {
                     'target': 'ns.example.com',
                     'lifetime': 10,
@@ -469,21 +452,14 @@ class TestWaitForTXT(ModuleTestCase):
         assert len(exc.value.args[0]['records']) == 1
         assert exc.value.args[0]['records'][0]['name'] == 'example.com'
         assert exc.value.args[0]['records'][0]['done'] is True
-        assert exc.value.args[0]['records'][0]['values'] == ['foo bar', 'another one', 'asdf']
+        assert exc.value.args[0]['records'][0]['values'] == {
+            'ns.example.com': ['foo bar', 'another one', 'asdf'],
+        }
         assert exc.value.args[0]['records'][0]['check_count'] == 3
 
     def test_superset(self):
         resolver = mock_resolver(['1.1.1.1'], {
             ('1.1.1.1', ): [
-                {
-                    'target': 'ns.com',
-                    'lifetime': 10,
-                    'result': create_mock_answer(dns.rrset.from_rdata(
-                        'ns.com',
-                        300,
-                        dns.rdata.from_text(dns.rdataclass.IN, dns.rdatatype.A, '2.2.2.2'),
-                    )),
-                },
                 {
                     'target': 'ns.example.com',
                     'lifetime': 10,
@@ -621,25 +597,20 @@ class TestWaitForTXT(ModuleTestCase):
         assert len(exc.value.args[0]['records']) == 2
         assert exc.value.args[0]['records'][0]['name'] == 'www.example.com'
         assert exc.value.args[0]['records'][0]['done'] is True
-        assert exc.value.args[0]['records'][0]['values'] == ['asdf', 'bee']
+        assert exc.value.args[0]['records'][0]['values'] == {
+            'ns.example.com': ['asdf', 'bee'],
+        }
         assert exc.value.args[0]['records'][0]['check_count'] == 3
         assert exc.value.args[0]['records'][1]['name'] == 'mail.example.com'
         assert exc.value.args[0]['records'][1]['done'] is True
-        assert exc.value.args[0]['records'][1]['values'] == []
+        assert exc.value.args[0]['records'][1]['values'] == {
+            'ns.example.com': [],
+        }
         assert exc.value.args[0]['records'][1]['check_count'] == 1
 
     def test_superset_not_empty(self):
         resolver = mock_resolver(['1.1.1.1'], {
             ('1.1.1.1', ): [
-                {
-                    'target': 'ns.com',
-                    'lifetime': 10,
-                    'result': create_mock_answer(dns.rrset.from_rdata(
-                        'ns.com',
-                        300,
-                        dns.rdata.from_text(dns.rdataclass.IN, dns.rdatatype.A, '2.2.2.2'),
-                    )),
-                },
                 {
                     'target': 'ns.example.com',
                     'lifetime': 10,
@@ -743,21 +714,14 @@ class TestWaitForTXT(ModuleTestCase):
         assert len(exc.value.args[0]['records']) == 1
         assert exc.value.args[0]['records'][0]['name'] == 'example.com'
         assert exc.value.args[0]['records'][0]['done'] is True
-        assert exc.value.args[0]['records'][0]['values'] == ['bumble', 'bee']
+        assert exc.value.args[0]['records'][0]['values'] == {
+            'ns.example.com': ['bumble', 'bee'],
+        }
         assert exc.value.args[0]['records'][0]['check_count'] == 4
 
     def test_equals(self):
         resolver = mock_resolver(['1.1.1.1'], {
             ('1.1.1.1', ): [
-                {
-                    'target': 'ns.com',
-                    'lifetime': 10,
-                    'result': create_mock_answer(dns.rrset.from_rdata(
-                        'ns.com',
-                        300,
-                        dns.rdata.from_text(dns.rdataclass.IN, dns.rdatatype.A, '2.2.2.2'),
-                    )),
-                },
                 {
                     'target': 'ns.example.com',
                     'lifetime': 10,
@@ -864,21 +828,14 @@ class TestWaitForTXT(ModuleTestCase):
         assert len(exc.value.args[0]['records']) == 1
         assert exc.value.args[0]['records'][0]['name'] == 'example.com'
         assert exc.value.args[0]['records'][0]['done'] is True
-        assert exc.value.args[0]['records'][0]['values'] == ['bumble bee', 'wizard', 'foo']
+        assert exc.value.args[0]['records'][0]['values'] == {
+            'ns.example.com': ['bumble bee', 'wizard', 'foo'],
+        }
         assert exc.value.args[0]['records'][0]['check_count'] == 4
 
     def test_equals_ordered(self):
         resolver = mock_resolver(['1.1.1.1'], {
             ('1.1.1.1', ): [
-                {
-                    'target': 'ns.com',
-                    'lifetime': 10,
-                    'result': create_mock_answer(dns.rrset.from_rdata(
-                        'ns.com',
-                        300,
-                        dns.rdata.from_text(dns.rdataclass.IN, dns.rdatatype.A, '2.2.2.2'),
-                    )),
-                },
                 {
                     'target': 'ns.example.com',
                     'lifetime': 10,
@@ -986,21 +943,14 @@ class TestWaitForTXT(ModuleTestCase):
         assert len(exc.value.args[0]['records']) == 1
         assert exc.value.args[0]['records'][0]['name'] == 'example.com'
         assert exc.value.args[0]['records'][0]['done'] is True
-        assert exc.value.args[0]['records'][0]['values'] == ['foo', 'bumble bee', 'wizard']
+        assert exc.value.args[0]['records'][0]['values'] == {
+            'ns.example.com': ['foo', 'bumble bee', 'wizard'],
+        }
         assert exc.value.args[0]['records'][0]['check_count'] == 4
 
     def test_timeout(self):
         resolver = mock_resolver(['1.1.1.1'], {
             ('1.1.1.1', ): [
-                {
-                    'target': 'ns.com',
-                    'lifetime': 10,
-                    'result': create_mock_answer(dns.rrset.from_rdata(
-                        'ns.com',
-                        300,
-                        dns.rdata.from_text(dns.rdataclass.IN, dns.rdatatype.A, '2.2.2.2'),
-                    )),
-                },
                 {
                     'target': 'ns.example.com',
                     'lifetime': 10,
@@ -1144,11 +1094,15 @@ class TestWaitForTXT(ModuleTestCase):
         assert len(exc.value.args[0]['records']) == 2
         assert exc.value.args[0]['records'][0]['name'] == 'www.example.com'
         assert exc.value.args[0]['records'][0]['done'] is False
-        assert exc.value.args[0]['records'][0]['values'] == ['asdfasdf']
+        assert exc.value.args[0]['records'][0]['values'] == {
+            'ns.example.com': ['asdfasdf'],
+        }
         assert exc.value.args[0]['records'][0]['check_count'] == 3
         assert exc.value.args[0]['records'][1]['name'] == 'mail.example.com'
         assert exc.value.args[0]['records'][1]['done'] is True
-        assert exc.value.args[0]['records'][1]['values'] == ['any bar']
+        assert exc.value.args[0]['records'][1]['values'] == {
+            'ns.example.com': ['any bar'],
+        }
         assert exc.value.args[0]['records'][1]['check_count'] == 1
 
     def test_nxdomain(self):
@@ -1233,30 +1187,12 @@ class TestWaitForTXT(ModuleTestCase):
         resolver = mock_resolver(['1.1.1.1'], {
             ('1.1.1.1', ): [
                 {
-                    'target': 'ns.com',
-                    'lifetime': 10,
-                    'result': create_mock_answer(dns.rrset.from_rdata(
-                        'ns.com',
-                        300,
-                        dns.rdata.from_text(dns.rdataclass.IN, dns.rdatatype.A, '2.2.2.2'),
-                    )),
-                },
-                {
                     'target': 'ns.example.com',
                     'lifetime': 10,
                     'result': create_mock_answer(dns.rrset.from_rdata(
                         'ns.example.com',
                         300,
                         dns.rdata.from_text(dns.rdataclass.IN, dns.rdatatype.A, '3.3.3.3'),
-                    )),
-                },
-                {
-                    'target': 'ns.org',
-                    'lifetime': 10,
-                    'result': create_mock_answer(dns.rrset.from_rdata(
-                        'ns.com',
-                        300,
-                        dns.rdata.from_text(dns.rdataclass.IN, dns.rdatatype.A, '2.2.3.3'),
                     )),
                 },
                 {
