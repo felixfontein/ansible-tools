@@ -39,7 +39,18 @@ Minor Changes
 -------------
 
 - Added ``felixfontein.tools.path_join`` filter. For ansible-base 2.10 or newer, it redirects to ``ansible.builtin.path_join``. For Ansible 2.9 and before, it provides an own implementation for the most important case: joining a list of path fragments.
-- Added filter plugins ``dns_zone``, ``dns_zone_prefix``, ``get_domain_suffix`` and ``remove_domain_suffix``.
+
+New Plugins
+-----------
+
+Filter
+~~~~~~
+
+- felixfontein.tools.dns_zone - Return the DNS zone of a domain name (``www.ansible.com`` → ``ansible.com``)
+- felixfontein.tools.dns_zone_prefix - Return the prefix before the DNS zone for a domain name (``www.ansible.com`` → ``www``)
+- felixfontein.tools.get_domain_suffix - Return the public suffix for a domain name (``www.ansible.com`` → ``.com``)
+- felixfontein.tools.path_join - Ansible 2.9 compatibility shim for the ``ansible.builtin.path_join`` filter included in ansible-base 2.10
+- felixfontein.tools.remove_domain_suffix - Return the part before the public suffix for a domain name (``www.ansible.com`` → ``www.ansible``)
 
 v1.0.1
 ======
