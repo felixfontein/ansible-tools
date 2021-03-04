@@ -59,15 +59,6 @@ def test_resolver():
     resolver = mock_resolver(['1.1.1.1'], {
         ('1.1.1.1', ): [
             {
-                'target': 'ns.com',
-                'lifetime': 10,
-                'result': create_mock_answer(dns.rrset.from_rdata(
-                    'ns.com',
-                    300,
-                    dns.rdata.from_text(dns.rdataclass.IN, dns.rdatatype.A, '2.2.2.2'),
-                )),
-            },
-            {
                 'target': 'ns.example.com',
                 'lifetime': 10,
                 'result': create_mock_answer(dns.rrset.from_rdata(
@@ -77,21 +68,21 @@ def test_resolver():
                 )),
             },
             {
-                'target': 'ns.org',
-                'lifetime': 10,
-                'result': create_mock_answer(dns.rrset.from_rdata(
-                    'ns.com',
-                    300,
-                    dns.rdata.from_text(dns.rdataclass.IN, dns.rdatatype.A, '2.2.3.3'),
-                )),
-            },
-            {
                 'target': 'ns.example.org',
                 'lifetime': 10,
                 'result': create_mock_answer(dns.rrset.from_rdata(
                     'ns.example.org',
                     300,
                     dns.rdata.from_text(dns.rdataclass.IN, dns.rdatatype.A, '4.4.4.4'),
+                )),
+            },
+            {
+                'target': 'ns.com',
+                'lifetime': 10,
+                'result': create_mock_answer(dns.rrset.from_rdata(
+                    'ns.com',
+                    300,
+                    dns.rdata.from_text(dns.rdataclass.IN, dns.rdatatype.A, '2.2.2.2'),
                 )),
             },
         ],
@@ -183,7 +174,7 @@ def test_resolver():
         with patch('dns.resolver.Resolver', resolver):
             with patch('dns.query.udp', mock_query_udp(udp_sequence)):
                 resolver = ResolveDirectlyFromNameServers()
-                assert resolver.resolve_nameservers('example.com') == ['3.3.3.3']
+                assert resolver.resolve_nameservers('example.com', resolve_addresses=True) == ['3.3.3.3']
                 # www.example.com is a CNAME for example.org
                 rrset = resolver.resolve('www.example.com')
                 assert len(rrset) == 1
@@ -191,14 +182,34 @@ def test_resolver():
                 assert rrset.rdtype == dns.rdatatype.A
                 assert rrset[0].to_text() == u'1.2.3.4'
                 # The following results should be cached:
-                assert resolver.resolve_nameservers('com') == ['2.2.2.2']
-                assert resolver.resolve_nameservers('example.com') == ['3.3.3.3']
-                assert resolver.resolve_nameservers('example.org') == ['3.3.3.3', '4.4.4.4']
+                assert resolver.resolve_nameservers('com', resolve_addresses=True) == ['2.2.2.2']
+                assert resolver.resolve_nameservers('org') == ['ns.org']
+                assert resolver.resolve_nameservers('example.com') == ['ns.example.com']
+                assert resolver.resolve_nameservers('example.org') == ['ns.example.com', 'ns.example.org']
 
 
 def test_timeout_handling():
     resolver = mock_resolver(['1.1.1.1'], {
         ('1.1.1.1', ): [
+            {
+                'target': 'ns.example.com',
+                'lifetime': 10,
+                'raise': dns.exception.Timeout(timeout=10),
+            },
+            {
+                'target': 'ns.example.com',
+                'lifetime': 10,
+                'result': create_mock_answer(dns.rrset.from_rdata(
+                    'ns.example.com',
+                    300,
+                    dns.rdata.from_text(dns.rdataclass.IN, dns.rdatatype.A, '3.3.3.3'),
+                )),
+            },
+            {
+                'target': 'ns.com',
+                'lifetime': 10,
+                'raise': dns.exception.Timeout(timeout=10),
+            },
             {
                 'target': 'ns.com',
                 'lifetime': 10,
@@ -211,15 +222,6 @@ def test_timeout_handling():
                     'ns.com',
                     300,
                     dns.rdata.from_text(dns.rdataclass.IN, dns.rdatatype.A, '2.2.2.2'),
-                )),
-            },
-            {
-                'target': 'ns.example.com',
-                'lifetime': 10,
-                'result': create_mock_answer(dns.rrset.from_rdata(
-                    'ns.example.com',
-                    300,
-                    dns.rdata.from_text(dns.rdataclass.IN, dns.rdatatype.A, '3.3.3.3'),
                 )),
             },
         ],
@@ -265,10 +267,12 @@ def test_timeout_handling():
         with patch('dns.resolver.Resolver', resolver):
             with patch('dns.query.udp', mock_query_udp(udp_sequence)):
                 resolver = ResolveDirectlyFromNameServers()
-                assert resolver.resolve_nameservers('example.com') == ['3.3.3.3']
+                assert resolver.resolve_nameservers('example.com', resolve_addresses=True) == ['3.3.3.3']
                 # The following results should be cached:
-                assert resolver.resolve_nameservers('com') == ['2.2.2.2']
-                assert resolver.resolve_nameservers('example.com') == ['3.3.3.3']
+                assert resolver.resolve_nameservers('com') == ['ns.com']
+                assert resolver.resolve_nameservers('com', resolve_addresses=True) == ['2.2.2.2']
+                assert resolver.resolve_nameservers('example.com') == ['ns.example.com']
+                assert resolver.resolve_nameservers('example.com', resolve_addresses=True) == ['3.3.3.3']
 
 
 def test_timeout_failure():
@@ -370,15 +374,6 @@ def test_no_response():
     resolver = mock_resolver(['1.1.1.1'], {
         ('1.1.1.1', ): [
             {
-                'target': 'ns.com',
-                'lifetime': 10,
-                'result': create_mock_answer(dns.rrset.from_rdata(
-                    'ns.com',
-                    300,
-                    dns.rdata.from_text(dns.rdataclass.IN, dns.rdatatype.A, '2.2.2.2'),
-                )),
-            },
-            {
                 'target': 'ns.example.com',
                 'lifetime': 10,
                 'result': create_mock_answer(dns.rrset.from_rdata(
@@ -450,7 +445,8 @@ def test_no_response():
                 rrset = resolver.resolve('example.com')
                 assert rrset is None
                 # Verify nameserver IPs
-                assert resolver.resolve_nameservers('example.com') == ['3.3.3.3', '4.4.4.4', '5.5.5.5']
+                assert resolver.resolve_nameservers('example.com') == ['ns.example.com', 'ns2.example.com']
+                assert resolver.resolve_nameservers('example.com', resolve_addresses=True) == ['3.3.3.3', '4.4.4.4', '5.5.5.5']
 
 
 def test_cname_loop():
@@ -706,7 +702,7 @@ def test_resolver_non_default():
         with patch('dns.resolver.Resolver', resolver):
             with patch('dns.query.udp', mock_query_udp(udp_sequence)):
                 resolver = ResolveDirectlyFromNameServers(always_ask_default_resolver=False)
-                assert resolver.resolve_nameservers('example.com') == ['3.3.3.3']
+                assert resolver.resolve_nameservers('example.com') == ['ns.example.com']
                 # www.example.com is a CNAME for example.org
                 rrset = resolver.resolve('www.example.com')
                 assert len(rrset) == 1
@@ -714,6 +710,8 @@ def test_resolver_non_default():
                 assert rrset.rdtype == dns.rdatatype.A
                 assert rrset[0].to_text() == u'1.2.3.4'
                 # The following results should be cached:
-                assert resolver.resolve_nameservers('com') == ['2.2.2.2']
-                assert resolver.resolve_nameservers('example.com') == ['3.3.3.3']
-                assert resolver.resolve_nameservers('example.org') == ['3.3.3.3', '4.4.4.4']
+                assert resolver.resolve_nameservers('com') == ['ns.com']
+                print(resolver.resolve_nameservers('example.com', resolve_addresses=True))
+                assert resolver.resolve_nameservers('example.com', resolve_addresses=True) == ['3.3.3.3']
+                print(resolver.resolve_nameservers('example.org', resolve_addresses=True))
+                assert resolver.resolve_nameservers('example.org', resolve_addresses=True) == ['3.3.3.3', '4.4.4.4']

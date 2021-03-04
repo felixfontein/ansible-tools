@@ -57,12 +57,19 @@ class ResolveDirectlyFromNameServers(object):
                     raise exc
                 retry += 1
 
-    def _lookup_ns_names(self, target, nameservers=None):
-        if nameservers is None or self.always_ask_default_resolver:
-            nameservers = self.default_nameservers
+    def _lookup_ns_names(self, target, nameservers=None, nameserver_ips=None):
+        if self.always_ask_default_resolver:
+            nameservers = None
+            nameserver_ips = self.default_nameservers
+        if nameservers is None and nameserver_ips is None:
+            nameserver_ips = self.default_nameservers
+        if not nameserver_ips and nameservers:
+            nameserver_ips = self._lookup_address(nameservers[0])
+        if not nameserver_ips:
+            raise ResolveError('Have neither nameservers nor nameserver IPs')
 
         query = dns.message.make_query(target, dns.rdatatype.NS)
-        response = self._handle_timeout(dns.query.udp, query, nameservers[0], timeout=self.timeout)
+        response = self._handle_timeout(dns.query.udp, query, nameserver_ips[0], timeout=self.timeout)
         self._handle_reponse_errors(target, response)
 
         cname = None
@@ -100,21 +107,21 @@ class ResolveDirectlyFromNameServers(object):
         return result
 
     def _do_lookup_ns(self, target):
-        nameservers = self.default_nameservers
+        nameserver_ips = self.default_nameservers
+        nameservers = None
         for i in range(2, len(target.labels) + 1):
             target_part = target.split(i)[1]
             _nameservers = self.cache.get((str(target_part), 'ns'))
             if _nameservers is None:
-                nameserver_names, cname = self._lookup_ns_names(target_part, nameservers=nameservers)
+                nameserver_names, cname = self._lookup_ns_names(target_part, nameservers=nameservers, nameserver_ips=nameserver_ips)
                 if nameserver_names is not None:
-                    nameservers = []
-                    for nameserver_name in nameserver_names:
-                        nameservers.extend(self._lookup_address(nameserver_name))
+                    nameservers = nameserver_names
 
                 self.cache[(str(target_part), 'ns')] = nameservers
                 self.cache[(str(target_part), 'cname')] = cname
             else:
                 nameservers = _nameservers
+            nameserver_ips = None
 
         return nameservers
 
@@ -130,12 +137,21 @@ class ResolveDirectlyFromNameServers(object):
         if resolver is None:
             resolver = dns.resolver.Resolver(configure=False)
             resolver.timeout = self.timeout
-            resolver.nameservers = nameservers
+            nameserver_ips = set()
+            for nameserver in nameservers:
+                nameserver_ips.update(self._lookup_address(nameserver))
+            resolver.nameservers = sorted(nameserver_ips)
             self.cache[(str(dnsname), 'resolver')] = resolver
         return resolver
 
-    def resolve_nameservers(self, target):
-        return sorted(self._lookup_ns(dns.name.from_unicode(to_text(target))))
+    def resolve_nameservers(self, target, resolve_addresses=False):
+        nameservers = self._lookup_ns(dns.name.from_unicode(to_text(target)))
+        if resolve_addresses:
+            nameserver_ips = set()
+            for nameserver in nameservers:
+                nameserver_ips.update(self._lookup_address(nameserver))
+            nameservers = list(nameserver_ips)
+        return sorted(nameservers)
 
     def resolve(self, target, **kwargs):
         dnsname = dns.name.from_unicode(to_text(target))

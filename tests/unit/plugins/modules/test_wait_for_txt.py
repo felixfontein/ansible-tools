@@ -51,30 +51,12 @@ class TestWaitForTXT(ModuleTestCase):
         resolver = mock_resolver(['1.1.1.1'], {
             ('1.1.1.1', ): [
                 {
-                    'target': 'ns.com',
-                    'lifetime': 10,
-                    'result': create_mock_answer(dns.rrset.from_rdata(
-                        'ns.com',
-                        300,
-                        dns.rdata.from_text(dns.rdataclass.IN, dns.rdatatype.A, '2.2.2.2'),
-                    )),
-                },
-                {
                     'target': 'ns.example.com',
                     'lifetime': 10,
                     'result': create_mock_answer(dns.rrset.from_rdata(
                         'ns.example.com',
                         300,
                         dns.rdata.from_text(dns.rdataclass.IN, dns.rdatatype.A, '3.3.3.3'),
-                    )),
-                },
-                {
-                    'target': 'ns.org',
-                    'lifetime': 10,
-                    'result': create_mock_answer(dns.rrset.from_rdata(
-                        'ns.com',
-                        300,
-                        dns.rdata.from_text(dns.rdataclass.IN, dns.rdatatype.A, '2.2.3.3'),
                     )),
                 },
                 {
@@ -201,15 +183,6 @@ class TestWaitForTXT(ModuleTestCase):
     def test_double(self):
         resolver = mock_resolver(['1.1.1.1'], {
             ('1.1.1.1', ): [
-                {
-                    'target': 'ns.com',
-                    'lifetime': 10,
-                    'result': create_mock_answer(dns.rrset.from_rdata(
-                        'ns.com',
-                        300,
-                        dns.rdata.from_text(dns.rdataclass.IN, dns.rdatatype.A, '2.2.2.2'),
-                    )),
-                },
                 {
                     'target': 'ns.example.com',
                     'lifetime': 10,
@@ -362,15 +335,6 @@ class TestWaitForTXT(ModuleTestCase):
         resolver = mock_resolver(['1.1.1.1'], {
             ('1.1.1.1', ): [
                 {
-                    'target': 'ns.com',
-                    'lifetime': 10,
-                    'result': create_mock_answer(dns.rrset.from_rdata(
-                        'ns.com',
-                        300,
-                        dns.rdata.from_text(dns.rdataclass.IN, dns.rdatatype.A, '2.2.2.2'),
-                    )),
-                },
-                {
                     'target': 'ns.example.com',
                     'lifetime': 10,
                     'result': create_mock_answer(dns.rrset.from_rdata(
@@ -475,15 +439,6 @@ class TestWaitForTXT(ModuleTestCase):
     def test_superset(self):
         resolver = mock_resolver(['1.1.1.1'], {
             ('1.1.1.1', ): [
-                {
-                    'target': 'ns.com',
-                    'lifetime': 10,
-                    'result': create_mock_answer(dns.rrset.from_rdata(
-                        'ns.com',
-                        300,
-                        dns.rdata.from_text(dns.rdataclass.IN, dns.rdatatype.A, '2.2.2.2'),
-                    )),
-                },
                 {
                     'target': 'ns.example.com',
                     'lifetime': 10,
@@ -632,15 +587,6 @@ class TestWaitForTXT(ModuleTestCase):
         resolver = mock_resolver(['1.1.1.1'], {
             ('1.1.1.1', ): [
                 {
-                    'target': 'ns.com',
-                    'lifetime': 10,
-                    'result': create_mock_answer(dns.rrset.from_rdata(
-                        'ns.com',
-                        300,
-                        dns.rdata.from_text(dns.rdataclass.IN, dns.rdatatype.A, '2.2.2.2'),
-                    )),
-                },
-                {
                     'target': 'ns.example.com',
                     'lifetime': 10,
                     'result': create_mock_answer(dns.rrset.from_rdata(
@@ -749,15 +695,6 @@ class TestWaitForTXT(ModuleTestCase):
     def test_equals(self):
         resolver = mock_resolver(['1.1.1.1'], {
             ('1.1.1.1', ): [
-                {
-                    'target': 'ns.com',
-                    'lifetime': 10,
-                    'result': create_mock_answer(dns.rrset.from_rdata(
-                        'ns.com',
-                        300,
-                        dns.rdata.from_text(dns.rdataclass.IN, dns.rdatatype.A, '2.2.2.2'),
-                    )),
-                },
                 {
                     'target': 'ns.example.com',
                     'lifetime': 10,
@@ -871,15 +808,6 @@ class TestWaitForTXT(ModuleTestCase):
         resolver = mock_resolver(['1.1.1.1'], {
             ('1.1.1.1', ): [
                 {
-                    'target': 'ns.com',
-                    'lifetime': 10,
-                    'result': create_mock_answer(dns.rrset.from_rdata(
-                        'ns.com',
-                        300,
-                        dns.rdata.from_text(dns.rdataclass.IN, dns.rdatatype.A, '2.2.2.2'),
-                    )),
-                },
-                {
                     'target': 'ns.example.com',
                     'lifetime': 10,
                     'result': create_mock_answer(dns.rrset.from_rdata(
@@ -992,15 +920,6 @@ class TestWaitForTXT(ModuleTestCase):
     def test_timeout(self):
         resolver = mock_resolver(['1.1.1.1'], {
             ('1.1.1.1', ): [
-                {
-                    'target': 'ns.com',
-                    'lifetime': 10,
-                    'result': create_mock_answer(dns.rrset.from_rdata(
-                        'ns.com',
-                        300,
-                        dns.rdata.from_text(dns.rdataclass.IN, dns.rdatatype.A, '2.2.2.2'),
-                    )),
-                },
                 {
                     'target': 'ns.example.com',
                     'lifetime': 10,
@@ -1233,30 +1152,12 @@ class TestWaitForTXT(ModuleTestCase):
         resolver = mock_resolver(['1.1.1.1'], {
             ('1.1.1.1', ): [
                 {
-                    'target': 'ns.com',
-                    'lifetime': 10,
-                    'result': create_mock_answer(dns.rrset.from_rdata(
-                        'ns.com',
-                        300,
-                        dns.rdata.from_text(dns.rdataclass.IN, dns.rdatatype.A, '2.2.2.2'),
-                    )),
-                },
-                {
                     'target': 'ns.example.com',
                     'lifetime': 10,
                     'result': create_mock_answer(dns.rrset.from_rdata(
                         'ns.example.com',
                         300,
                         dns.rdata.from_text(dns.rdataclass.IN, dns.rdatatype.A, '3.3.3.3'),
-                    )),
-                },
-                {
-                    'target': 'ns.org',
-                    'lifetime': 10,
-                    'result': create_mock_answer(dns.rrset.from_rdata(
-                        'ns.com',
-                        300,
-                        dns.rdata.from_text(dns.rdataclass.IN, dns.rdatatype.A, '2.2.3.3'),
                     )),
                 },
                 {
