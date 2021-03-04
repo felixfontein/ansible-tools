@@ -66,7 +66,7 @@ class ResolveDirectlyFromNameServers(object):
         if not nameserver_ips and nameservers:
             nameserver_ips = self._lookup_address(nameservers[0])
         if not nameserver_ips:
-            raise ResolveError('Have neither nameservers nor nameserver IPs')
+            raise ResolverError('Have neither nameservers nor nameserver IPs')
 
         query = dns.message.make_query(target, dns.rdatatype.NS)
         response = self._handle_timeout(dns.query.udp, query, nameserver_ips[0], timeout=self.timeout)
