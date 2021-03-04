@@ -55,6 +55,59 @@ def test_assert_requirements_present():
     resolver.DNSPYTHON_IMPORTERROR = orig_importerror
 
 
+def test_lookup_ns_names():
+    resolver = mock_resolver(['1.1.1.1'], {})
+    udp_sequence = [
+        {
+            'query_target': dns.name.from_unicode(u'example.com'),
+            'query_type': dns.rdatatype.NS,
+            'nameserver': '1.1.1.1',
+            'kwargs': {
+                'timeout': 10,
+            },
+            'result': create_mock_response(dns.rcode.NOERROR, answer=[dns.rrset.from_rdata(
+                'example.com',
+                3600,
+                dns.rdata.from_text(dns.rdataclass.IN, dns.rdatatype.NS, 'ns.example.org.'),
+                dns.rdata.from_text(dns.rdataclass.IN, dns.rdatatype.NS, 'ns.example.com.'),
+            )]),
+        },
+        {
+            'query_target': dns.name.from_unicode(u'example.com'),
+            'query_type': dns.rdatatype.NS,
+            'nameserver': '3.3.3.3',
+            'kwargs': {
+                'timeout': 10,
+            },
+            'result': create_mock_response(dns.rcode.NOERROR, answer=[dns.rrset.from_rdata(
+                'example.com',
+                60,
+                dns.rdata.from_text(dns.rdataclass.IN, dns.rdatatype.CNAME, 'foo.bar.'),
+            )], authority=[dns.rrset.from_rdata(
+                'example.com',
+                3600,
+                dns.rdata.from_text(dns.rdataclass.IN, dns.rdatatype.NS, 'ns.example.com.'),
+            )]),
+        },
+    ]
+    with patch('dns.resolver.get_default_resolver', resolver):
+        with patch('dns.resolver.Resolver', resolver):
+            with patch('dns.query.udp', mock_query_udp(udp_sequence)):
+                resolver = ResolveDirectlyFromNameServers(always_ask_default_resolver=False)
+                # Use default resolver
+                ns, cname = resolver._lookup_ns_names(dns.name.from_unicode(u'example.com'))
+                assert ns == ['ns.example.com.', 'ns.example.org.']
+                assert cname is None
+                # Provide nameserver IPs
+                ns, cname = resolver._lookup_ns_names(dns.name.from_unicode(u'example.com'), nameserver_ips=['3.3.3.3', '1.1.1.1'])
+                assert ns == ['ns.example.com.']
+                assert cname == dns.name.from_unicode(u'foo.bar.')
+                # Provide empty nameserver list
+                with pytest.raises(ResolverError) as exc:
+                    resolver._lookup_ns_names(dns.name.from_unicode(u'example.com'), nameservers=[])
+                assert exc.value.args[0] == 'Have neither nameservers nor nameserver IPs'
+
+
 def test_resolver():
     resolver = mock_resolver(['1.1.1.1'], {
         ('1.1.1.1', ): [
