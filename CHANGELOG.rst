@@ -5,6 +5,34 @@ Felix's Tools Release Notes
 .. contents:: Topics
 
 
+v1.4.0
+======
+
+Release Summary
+---------------
+
+This release adds several DNS-related new plugins, and two filters which make creating dictionaries easier.
+
+New Plugins
+-----------
+
+Filter
+~~~~~~
+
+- felixfontein.tools.dict - The ``dict`` function as a filter: converts a list of tuples to a dictionary
+- felixfontein.tools.list_to_dict - Given a list of values and a list of keys, converts them to a dictionary
+- felixfontein.tools.registrable_domain - Given domain name, returns the registrable domain
+
+Test
+~~~~
+
+- felixfontein.tools.is_registrable_domain - Given domain name, tests whether it is a registrable domain
+
+New Modules
+-----------
+
+- felixfontein.tools.wait_for_txt - Wait for TXT entries to be available on all authoritative nameservers
+
 v1.3.0
 ======
 

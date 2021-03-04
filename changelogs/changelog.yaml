@@ -74,3 +74,33 @@ releases:
     - psl-matching.yml
     - psl-updated.yml
     release_date: '2021-02-22'
+  1.4.0:
+    changes:
+      release_summary: This release adds several DNS-related new plugins, and two
+        filters which make creating dictionaries easier.
+    fragments:
+    - 1.4.0.yml
+    - dict.yml
+    - registrable-domain.yml
+    modules:
+    - description: Wait for TXT entries to be available on all authoritative nameservers
+      name: wait_for_txt
+      namespace: ''
+    plugins:
+      filter:
+      - description: 'The ``dict`` function as a filter: converts a list of tuples
+          to a dictionary'
+        name: dict
+        namespace: null
+      - description: Given a list of values and a list of keys, converts them to a
+          dictionary
+        name: list_to_dict
+        namespace: null
+      - description: Given domain name, returns the registrable domain
+        name: registrable_domain
+        namespace: null
+      test:
+      - description: Given domain name, tests whether it is a registrable domain
+        name: is_registrable_domain
+        namespace: null
+    release_date: '2021-03-04'
