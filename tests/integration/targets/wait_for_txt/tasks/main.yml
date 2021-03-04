@@ -18,9 +18,11 @@
       - success.records | length == 2
       - success.records[0].name == 'github.com'
       - success.records[0].done == true
+      - "'values' in success.records[0]"
       - success.records[0].check_count == 1
       - success.records[1].name == 'github.io'
       - success.records[1].done == true
+      - "'values' in success.records[1]"
       - success.records[1].check_count == 1
 
 - name: Wait for non-existing TXT entry

@@ -131,16 +131,19 @@ records:
             sample: false
         values:
             description:
-                - The TXT records for this DNS name during the last lookup made.
-                - Once the check is done, the TXT records for this DNS name are no longer checked.
-                - If these are multiple entries, the order is as it was received from DNS. This might
-                  not be the same order provided in the check.
+                - For every authoritative nameserver for the DNS name, lists the TXT records retrieved during the last lookup made.
+                - Once the check completed for all TXT records retrieved, the TXT records for this DNS name are no longer checked.
+                - If these are multiple TXT entries for a nameserver, the order is as it was received from that nameserver. This
+                  might not be the same order provided in the check.
             returned: lookup was done at least once
-            type: list
-            elements: str
+            type: dict
+            elements: list
             sample:
-                - TXT value 1
-                - TXT value 2
+                ns1.example.com:
+                    - TXT value 1
+                    - TXT value 2
+                ns2.example.com:
+                    - TXT value 2
         check_count:
             description:
                 - How often the TXT records for this DNS name were checked.
@@ -187,13 +190,16 @@ except ImportError:
 
 
 def lookup(resolver, name):
-    txt = resolver.resolve(name, rdtype=dns.rdatatype.TXT)
-    if txt is None:
-        return []
-    result = []
-    for data in txt:
-        for str in data.strings:
-            result.append(to_text(str))
+    result = {}
+    txts = resolver.resolve(name, rdtype=dns.rdatatype.TXT)
+    for key, txt in txts.items():
+        res = []
+        if txt is not None:
+            for data in txt:
+                for str in data.strings:
+                    res.append(to_text(str))
+        result[key] = res
+        txts[key] = []
     return result
 
 
@@ -264,10 +270,10 @@ def main():
             for index, record in enumerate(records):
                 if results[index]['done']:
                     continue
-                txt = lookup(resolver, record['name'])
-                results[index]['values'] = txt
+                txts = lookup(resolver, record['name'])
+                results[index]['values'] = txts
                 results[index]['check_count'] += 1
-                if validate_check(txt, record['values'], record['mode']):
+                if all(validate_check(txt, record['values'], record['mode']) for txt in txts.values()):
                     results[index]['done'] = True
                     finished_checks += 1
                 else:

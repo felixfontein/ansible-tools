@@ -86,7 +86,7 @@ def test_resolver():
                 )),
             },
         ],
-        ('3.3.3.3', '4.4.4.4', ): [
+        ('3.3.3.3', ): [
             {
                 'target': dns.name.from_unicode(u'example.org'),
                 'lifetime': 10,
@@ -94,6 +94,17 @@ def test_resolver():
                     'example.org',
                     300,
                     dns.rdata.from_text(dns.rdataclass.IN, dns.rdatatype.A, '1.2.3.4'),
+                )),
+            },
+        ],
+        ('4.4.4.4', ): [
+            {
+                'target': dns.name.from_unicode(u'example.org'),
+                'lifetime': 10,
+                'result': create_mock_answer(dns.rrset.from_rdata(
+                    'example.org',
+                    300,
+                    dns.rdata.from_text(dns.rdataclass.IN, dns.rdatatype.A, '1.2.3.5'),
                 )),
             },
         ],
@@ -176,11 +187,18 @@ def test_resolver():
                 resolver = ResolveDirectlyFromNameServers()
                 assert resolver.resolve_nameservers('example.com', resolve_addresses=True) == ['3.3.3.3']
                 # www.example.com is a CNAME for example.org
-                rrset = resolver.resolve('www.example.com')
+                rrset_dict = resolver.resolve('www.example.com')
+                assert list(rrset_dict.keys()) == ['ns.example.com', 'ns.example.org']
+                rrset = rrset_dict['ns.example.com']
                 assert len(rrset) == 1
                 assert rrset.name == dns.name.from_unicode(u'example.org', origin=None)
                 assert rrset.rdtype == dns.rdatatype.A
                 assert rrset[0].to_text() == u'1.2.3.4'
+                rrset = rrset_dict['ns.example.org']
+                assert len(rrset) == 1
+                assert rrset.name == dns.name.from_unicode(u'example.org', origin=None)
+                assert rrset.rdtype == dns.rdatatype.A
+                assert rrset[0].to_text() == u'1.2.3.5'
                 # The following results should be cached:
                 assert resolver.resolve_nameservers('com', resolve_addresses=True) == ['2.2.2.2']
                 assert resolver.resolve_nameservers('org') == ['ns.org']
@@ -393,12 +411,14 @@ def test_no_response():
                 )),
             },
         ],
-        ('3.3.3.3', '4.4.4.4', '5.5.5.5'): [
+        ('3.3.3.3', '5.5.5.5'): [
             {
                 'target': dns.name.from_unicode(u'example.com'),
                 'lifetime': 10,
                 'result': create_mock_answer(),
             },
+        ],
+        ('4.4.4.4', ): [
             {
                 'target': dns.name.from_unicode(u'example.com'),
                 'lifetime': 10,
@@ -439,11 +459,10 @@ def test_no_response():
         with patch('dns.resolver.Resolver', resolver):
             with patch('dns.query.udp', mock_query_udp(udp_sequence)):
                 resolver = ResolveDirectlyFromNameServers()
-                rrset = resolver.resolve('example.com')
-                assert rrset is None
-                # Second call raises NoAnswer instead of returning None
-                rrset = resolver.resolve('example.com')
-                assert rrset is None
+                rrset_dict = resolver.resolve('example.com')
+                assert sorted(rrset_dict.keys()) == ['ns.example.com', 'ns2.example.com']
+                assert rrset_dict['ns.example.com'] is None
+                assert rrset_dict['ns2.example.com'] is None
                 # Verify nameserver IPs
                 assert resolver.resolve_nameservers('example.com') == ['ns.example.com', 'ns2.example.com']
                 assert resolver.resolve_nameservers('example.com', resolve_addresses=True) == ['3.3.3.3', '4.4.4.4', '5.5.5.5']
@@ -614,7 +633,18 @@ def test_resolver_non_default():
                 )),
             },
         ],
-        ('3.3.3.3', '4.4.4.4', ): [
+        ('3.3.3.3', ): [
+            {
+                'target': dns.name.from_unicode(u'example.org'),
+                'lifetime': 10,
+                'result': create_mock_answer(dns.rrset.from_rdata(
+                    'example.org',
+                    300,
+                    dns.rdata.from_text(dns.rdataclass.IN, dns.rdatatype.A, '1.2.3.4'),
+                )),
+            },
+        ],
+        ('4.4.4.4', ): [
             {
                 'target': dns.name.from_unicode(u'example.org'),
                 'lifetime': 10,
@@ -704,7 +734,14 @@ def test_resolver_non_default():
                 resolver = ResolveDirectlyFromNameServers(always_ask_default_resolver=False)
                 assert resolver.resolve_nameservers('example.com') == ['ns.example.com']
                 # www.example.com is a CNAME for example.org
-                rrset = resolver.resolve('www.example.com')
+                rrset_dict = resolver.resolve('www.example.com')
+                assert sorted(rrset_dict.keys()) == ['ns.example.com', 'ns.example.org']
+                rrset = rrset_dict['ns.example.com']
+                assert len(rrset) == 1
+                assert rrset.name == dns.name.from_unicode(u'example.org', origin=None)
+                assert rrset.rdtype == dns.rdatatype.A
+                assert rrset[0].to_text() == u'1.2.3.4'
+                rrset = rrset_dict['ns.example.org']
                 assert len(rrset) == 1
                 assert rrset.name == dns.name.from_unicode(u'example.org', origin=None)
                 assert rrset.rdtype == dns.rdatatype.A
