@@ -188,7 +188,7 @@ def test_resolver():
                 assert resolver.resolve_nameservers('example.com', resolve_addresses=True) == ['3.3.3.3']
                 # www.example.com is a CNAME for example.org
                 rrset_dict = resolver.resolve('www.example.com')
-                assert list(rrset_dict.keys()) == ['ns.example.com', 'ns.example.org']
+                assert sorted(rrset_dict.keys()) == ['ns.example.com', 'ns.example.org']
                 rrset = rrset_dict['ns.example.com']
                 assert len(rrset) == 1
                 assert rrset.name == dns.name.from_unicode(u'example.org', origin=None)
