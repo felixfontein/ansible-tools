@@ -1,0 +1,16 @@
+---
+sections:
+  - title: Dictionary Filters
+    toctree:
+      - dict_filter
+      - list_to_dict_filter
+  - title: Domain Name Filters
+    toctree:
+      - dns_zone_filter
+      - dns_zone_prefix_filter
+      - get_domain_suffix_filter
+      - registrable_domain_filter
+      - remove_domain_suffix_filter
+  - title: Domain Name Tests
+    toctree:
+      - is_registrable_domain_test
