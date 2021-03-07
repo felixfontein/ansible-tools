@@ -1,9 +1,10 @@
 ---
 sections:
-  - title: Dictionary Filters
+  - title: General Filters
     toctree:
       - dict_filter
       - list_to_dict_filter
+      - path_join_filter
   - title: Domain Name Filters
     toctree:
       - dns_zone_filter

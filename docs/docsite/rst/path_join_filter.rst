@@ -1,7 +1,7 @@
-.. _ansible_collection.felixfontein.tools.docsite.dict_filter:
+.. _ansible_collection.felixfontein.tools.docsite.path_join_filter:
 
-felixfontein.tools.dict -- Convert a list of tuples to a dictionary
-+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+felixfontein.tools.path_join -- Join path components (compatibility shim)
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 .. Collection note
 
@@ -10,11 +10,11 @@ felixfontein.tools.dict -- Convert a list of tuples to a dictionary
 
     To install it use: :code:`ansible-galaxy collection install felixfontein.tools`.
 
-    To use it in a playbook, specify: :code:`felixfontein.tools.dict`.
+    To use it in a playbook, specify: :code:`felixfontein.tools.path_join`.
 
 .. version_added
 
-.. versionadded:: 1.4.0 of felixfontein.tools
+.. versionadded:: 1.1.0 of felixfontein.tools
 
 .. contents::
    :local:
@@ -28,7 +28,7 @@ Synopsis
 
 .. Description
 
-- Converts a list of tuples to a dictionary. This does the same as the `dict jinja2 function <https://jinja.palletsprojects.com/en/2.11.x/templates/#dict>`_, but has the advantage that it can be used with `map <https://jinja.palletsprojects.com/en/2.11.x/templates/#map>`_.
+- Compatiblity shim which redirects to ``ansible.builtin.path_join`` for ansible-base 2.10 and newer, and provides a basic implementation for Ansible 2.9 and before. It supports joining a list of path fragments.
 
 
 .. Aliases
@@ -53,12 +53,12 @@ Parameters
         </tr>
         <tr>
             <td colspan="1">
-                <div class="ansibleOptionAnchor" id="parameter-sequence"></div>
-                    <b>sequence</b>
-                    <a class="ansibleOptionLink" href="#parameter-sequence" title="Permalink to this option"></a>
+                <div class="ansibleOptionAnchor" id="parameter-path_fragments"></div>
+                    <b>path_fragments</b>
+                    <a class="ansibleOptionLink" href="#parameter-path_fragments" title="Permalink to this option"></a>
                     <div style="font-size: small">
                     <span style="color: purple">list</span>
-                    / <span style="color: purple">elements=list</span>
+                    / <span style="color: purple">elements=str</span>
                     / <span style="color: red">required</span>
                 </div>
             </td>
@@ -67,8 +67,7 @@ Parameters
             <td>
             </td>
             <td>
-                <div>A list of two-element lists.</div>
-                <div>The list elements are treated as tuples ``(key, value)``, that are used as key and value for the resulting dictionary.</div>
+                <div>A list of path fragments to be joined.</div>
             </td>
         </tr>
     </table>
@@ -90,11 +89,8 @@ Examples
     - name: The following conditions are true
       assert:
         that:
-          - '[["a", 1], ["b", 2]] | felixfontein.tools.dict == dictionary'
-      vars:
-        dictionary:
-          a: 1
-          b: 2
+          - '["/home", "user", "file"] | felixfontein.tools.path_join == "/home/user/felix"'
+          - '["/home", "/var", "temp"] | felixfontein.tools.path_join == "/var/temp"'
 
 
 .. Facts
@@ -115,16 +111,19 @@ Return Values
         </tr>
         <tr>
             <td colspan="1">
-                <div class="ansibleOptionAnchor" id="return-dictionary"></div>
-                    <b>dictionary</b>
-                    <a class="ansibleOptionLink" href="#return-dictionary" title="Permalink to this return value"></a>
-                    <div style="font-size: small">
-                    <span style="color: purple">dict</span>
+                <div class="ansibleOptionAnchor" id="return-path"></div>
+                <b>path</b>
+                <a class="ansibleOptionLink" href="#return-path" title="Permalink to this return value"></a>
+                <div style="font-size: small">
+                <span style="color: purple">str</span>
                 </div>
             </td>
             <td>success</td>
             <td>
-                <div>The dictionary created from the input key-value pairs.</div>
+                <div>The combined path.</div>
+                <br/>
+                <div style="font-size: smaller"><b>Sample:</b></div>
+                <div style="font-size: smaller; color: blue; word-wrap: break-word; word-break: break-all;">/tmp/asdf</div>
             </td>
         </tr>
     </table>
