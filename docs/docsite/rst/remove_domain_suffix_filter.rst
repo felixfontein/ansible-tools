@@ -1,4 +1,4 @@
-.. _ansible_collection.felixfontein.tools.docsite.remove_domain_suffix_filter:
+.. _ansible_collections.felixfontein.tools.docsite.remove_domain_suffix_filter:
 
 felixfontein.tools.remove_domain_suffix -- Return part before the public suffix from DNS name
 +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++

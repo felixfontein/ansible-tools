@@ -1,4 +1,4 @@
-.. _ansible_collection.felixfontein.tools.docsite.is_registrable_domain_test:
+.. _ansible_collections.felixfontein.tools.docsite.is_registrable_domain_test:
 
 felixfontein.tools.is_registrable_domain -- Test whether DNS name is a registrable domain name
 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++

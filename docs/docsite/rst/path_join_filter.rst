@@ -1,4 +1,4 @@
-.. _ansible_collection.felixfontein.tools.docsite.path_join_filter:
+.. _ansible_collections.felixfontein.tools.docsite.path_join_filter:
 
 felixfontein.tools.path_join -- Join path components (compatibility shim)
 +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++

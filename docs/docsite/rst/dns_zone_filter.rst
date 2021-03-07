@@ -1,4 +1,4 @@
-.. _ansible_collection.felixfontein.tools.docsite.dns_zone_filter:
+.. _ansible_collections.felixfontein.tools.docsite.dns_zone_filter:
 
 felixfontein.tools.dns_zone -- Return registrable domain from DNS name
 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++

@@ -1,4 +1,4 @@
-.. _ansible_collection.felixfontein.tools.docsite.dict_filter:
+.. _ansible_collections.felixfontein.tools.docsite.dict_filter:
 
 felixfontein.tools.dict -- Convert a list of tuples to a dictionary
 +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++

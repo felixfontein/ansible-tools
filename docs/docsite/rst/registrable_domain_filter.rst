@@ -1,4 +1,4 @@
-.. _ansible_collection.felixfontein.tools.docsite.registrable_domain_filter:
+.. _ansible_collections.felixfontein.tools.docsite.registrable_domain_filter:
 
 felixfontein.tools.registrable_domain -- Return registrable domain name from DNS name
 +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++

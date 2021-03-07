@@ -1,4 +1,4 @@
-.. _ansible_collection.felixfontein.tools.docsite.list_to_dict_filter:
+.. _ansible_collections.felixfontein.tools.docsite.list_to_dict_filter:
 
 felixfontein.tools.list_to_dict -- Convert a list of values and keys to a dictionary
 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++

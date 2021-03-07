@@ -1,4 +1,4 @@
-.. _ansible_collection.felixfontein.tools.docsite.get_domain_suffix_filter:
+.. _ansible_collections.felixfontein.tools.docsite.get_domain_suffix_filter:
 
 felixfontein.tools.get_domain_suffix -- Return public suffix from DNS name
 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++

@@ -1,4 +1,4 @@
-.. _ansible_collection.felixfontein.tools.docsite.dns_zone_prefix_filter:
+.. _ansible_collections.felixfontein.tools.docsite.dns_zone_prefix_filter:
 
 felixfontein.tools.dns_zone_prefix -- Return part before registrable domain from DNS name
 +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
