@@ -11867,6 +11867,10 @@ shw.io
 // Submitted by Jonathan Rudenberg <jonathan@flynn.io>
 flynnhosting.net
 
+// Forgerock : https://www.forgerock.com
+// Submitted by Roderick Parr <roderick.parr@forgerock.com> 
+forgeblocks.com
+
 // Framer : https://www.framer.com
 // Submitted by Koen Rouwhorst <koenrh@framer.com>
 framer.app
@@ -12316,8 +12320,6 @@ jelastic.saveincloud.net
 nordeste-idc.saveincloud.net
 j.scaleforce.net
 jelastic.tsukaeru.net
-atl.jelastic.vps-host.net
-njs.jelastic.vps-host.net
 unicloud.pl
 mircloud.ru
 jelastic.regruhosting.ru
@@ -13650,4 +13652,12 @@ gsj.bz
 сочи.рус
 спб.рус
 я.рус
+
+// Strategic System Consulting (eApps Hosting): https://www.eapps.com/
+// Submitted by Alex Oancea <aoancea@cloudscale365.com>
+vps-host.net
+atl.jelastic.vps-host.net
+njs.jelastic.vps-host.net
+ric.jelastic.vps-host.net
 // ===END PRIVATE DOMAINS===
+
