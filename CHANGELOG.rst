@@ -5,6 +5,24 @@ Felix's Tools Release Notes
 .. contents:: Topics
 
 
+v1.4.1
+======
+
+Release Summary
+---------------
+
+Improve documentation and update PSL.
+
+Minor Changes
+-------------
+
+- Add documentation for all filter and test plugins to the `collection's docsite <https://ansible.fontein.de/collections/felixfontein/tools/index.html#plugins-in-felixfontein-tools>`_ (https://github.com/felixfontein/ansible-tools/pull/16).
+
+Bugfixes
+--------
+
+- Update Public Suffix List.
+
 v1.4.0
 ======
 

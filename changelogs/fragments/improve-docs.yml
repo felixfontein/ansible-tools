@@ -1,2 +1,0 @@
-minor_changes:
-- "Add documentation for all filter and test plugins to the `collection's docsite <https://ansible.fontein.de/collections/felixfontein/tools/index.html#plugins-in-felixfontein-tools>`_ (https://github.com/felixfontein/ansible-tools/pull/16)."
