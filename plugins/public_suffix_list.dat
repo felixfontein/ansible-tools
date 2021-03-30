@@ -11871,11 +11871,16 @@ flynnhosting.net
 // Forgerock : https://www.forgerock.com
 // Submitted by Roderick Parr <roderick.parr@forgerock.com>
 forgeblocks.com
+*.id.forgerock.io
 
 // Framer : https://www.framer.com
 // Submitted by Koen Rouwhorst <koenrh@framer.com>
 framer.app
 framercanvas.com
+
+// RavPage : https://www.ravpage.co.il
+// Submitted by Roni Horowitz <roni@responder.co.il>
+ravpage.co.il
 
 // Frederik Braun https://frederik-braun.com
 // Submitted by Frederik Braun <fb@frederik-braun.com>
@@ -12500,6 +12505,10 @@ mayfirst.org
 // Submitted by Ilya Zaretskiy <zaretskiy@corp.mail.ru>
 hb.cldmail.ru
 
+// Maze Play: https://www.mazeplay.com
+// Submitted by Adam Humpherys <adam@mws.dev>
+mazeplay.com
+
 // mcpe.me : https://mcpe.me
 // Submitted by Noa Heyl <hi@noa.dev>
 mcpe.me
@@ -13102,6 +13111,7 @@ onrender.com
 // Repl.it : https://repl.it
 // Submitted by Mason Clayton <mason@repl.it>
 repl.co
+id.repl.co
 repl.run
 
 // Resin.io : https://resin.io
@@ -13359,6 +13369,10 @@ pages.torproject.net
 // Submitted by Dustin Ward <dward@townnews.com>
 bloxcms.com
 townnews-staging.com
+
+// TradableBits: https://tradablebits.com
+// Submitted by Dmitry Khrisanov dmitry@tradablebits.com
+tbits.me
 
 // TrafficPlex GmbH : https://www.trafficplex.de/
 // Submitted by Phillipp Röll <phillipp.roell@trafficplex.de>
