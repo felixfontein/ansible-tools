@@ -118,3 +118,12 @@ releases:
     - improve-docs.yml
     - update-psl.yml
     release_date: '2021-03-28'
+  1.4.2:
+    changes:
+      bugfixes:
+      - Update Public Suffix List.
+      release_summary: Regular maintenance release.
+    fragments:
+    - 1.4.2.yml
+    - update-psl.yml
+    release_date: '2021-06-05'

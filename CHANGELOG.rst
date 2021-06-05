@@ -5,6 +5,19 @@ Felix's Tools Release Notes
 .. contents:: Topics
 
 
+v1.4.2
+======
+
+Release Summary
+---------------
+
+Regular maintenance release.
+
+Bugfixes
+--------
+
+- Update Public Suffix List.
+
 v1.4.1
 ======
 
