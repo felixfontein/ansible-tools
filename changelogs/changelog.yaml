@@ -127,3 +127,17 @@ releases:
     - 1.4.2.yml
     - update-psl.yml
     release_date: '2021-06-05'
+  1.4.3:
+    changes:
+      bugfixes:
+      - Update Public Suffix list.
+      - wait_for_txt - fix handling of too long TXT values.
+      - wait_for_txt - resolving nameservers sometimes resulted in an empty list,
+        yielding wrong results.
+      release_summary: Bugfix release.
+    fragments:
+    - 1.4.3.yml
+    - update-psl.yml
+    - wait_for_txt-empty-ns.yml
+    - wait_for_txt-too-long.yml
+    release_date: '2021-09-22'

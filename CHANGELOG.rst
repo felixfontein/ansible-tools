@@ -5,6 +5,21 @@ Felix's Tools Release Notes
 .. contents:: Topics
 
 
+v1.4.3
+======
+
+Release Summary
+---------------
+
+Bugfix release.
+
+Bugfixes
+--------
+
+- Update Public Suffix list.
+- wait_for_txt - fix handling of too long TXT values.
+- wait_for_txt - resolving nameservers sometimes resulted in an empty list, yielding wrong results.
+
 v1.4.2
 ======
 
