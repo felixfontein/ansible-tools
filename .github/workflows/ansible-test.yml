@@ -107,7 +107,7 @@ jobs:
         working-directory: ./ansible_collections/felixfontein/tools
 
       # See the reports at https://codecov.io/gh/felixfontein/tools
-      - uses: codecov/codecov-action@v1
+      - uses: codecov/codecov-action@v2
         with:
           fail_ci_if_error: false
 
@@ -177,6 +177,6 @@ jobs:
         working-directory: ./ansible_collections/felixfontein/tools
 
       # See the reports at https://codecov.io/gh/felixfontein/tools
-      - uses: codecov/codecov-action@v1
+      - uses: codecov/codecov-action@v2
         with:
           fail_ci_if_error: false
