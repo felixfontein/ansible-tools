@@ -1,1 +1,4 @@
+plugins/modules/wait_for_txt.py validate-modules:deprecation-mismatch
+plugins/modules/wait_for_txt.py validate-modules:invalid-documentation
+plugins/modules/wait_for_txt.py validate-modules:missing-main-call
 plugins/public_suffix_list.dat no-smart-quotes
