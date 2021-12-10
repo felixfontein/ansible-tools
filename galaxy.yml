@@ -1,6 +1,6 @@
 namespace: felixfontein
 name: tools
-version: 1.4.3
+version: 1.5.0
 readme: README.md
 authors:
   - Felix Fontein (https://github.com/felixfontein)
