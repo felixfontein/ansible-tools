@@ -141,3 +141,17 @@ releases:
     - wait_for_txt-empty-ns.yml
     - wait_for_txt-too-long.yml
     release_date: '2021-09-22'
+  1.5.0:
+    changes:
+      bugfixes:
+      - Update Public Suffix List.
+      deprecated_features:
+      - This collection is deprecated. Please use `community.dns <https://galaxy.ansible.com/community/dns>`_
+        and `community.general <https://galaxy.ansible.com/community/general>`_ instead,
+        which are both included in Ansible 4+. They contains improved versions of
+        the plugins and modules of this collection and receive updates.
+      release_summary: Deprecation release.
+    fragments:
+    - 1.5.0.yml
+    - update-psl.yml
+    release_date: '2021-12-10'

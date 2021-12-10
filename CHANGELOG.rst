@@ -5,6 +5,24 @@ Felix's Tools Release Notes
 .. contents:: Topics
 
 
+v1.5.0
+======
+
+Release Summary
+---------------
+
+Deprecation release.
+
+Deprecated Features
+-------------------
+
+- This collection is deprecated. Please use `community.dns <https://galaxy.ansible.com/community/dns>`_ and `community.general <https://galaxy.ansible.com/community/general>`_ instead, which are both included in Ansible 4+. They contains improved versions of the plugins and modules of this collection and receive updates.
+
+Bugfixes
+--------
+
+- Update Public Suffix List.
+
 v1.4.3
 ======
 
