@@ -9,3 +9,49 @@ plugin_routing:
       # redirect will be used for ansible-base 2.10 or later, and the included
       # path_join filter will be used for Ansible 2.9 or earlier.
       redirect: ansible.builtin.path_join
+      deprecation:
+        warning_text: The felixfontein.tools.path_join filter plugin is deprecated. Use community.dns.path_join instead.
+        removal_version: 2.0.0
+    dict:
+      deprecation:
+        warning_text: The felixfontein.tools.dict filter plugin is deprecated. Use community.general.dict instead.
+        removal_version: 2.0.0
+    list_to_dict:
+      deprecation:
+        warning_text: The felixfontein.tools.list_to_dict filter plugin is deprecated. Use ansible.builtin.items2dict with explicit key_name and value_name combined with community.general.dict instead.
+        removal_version: 2.0.0
+    dns_zone:
+      deprecation:
+        warning_text: The felixfontein.tools.dns_zone filter plugin is deprecated. Use community.dns.get_registrable_domain instead.
+        removal_version: 2.0.0
+    dns_zone_prefix:
+      deprecation:
+        warning_text: The felixfontein.tools.dns_zone_prefix filter plugin is deprecated. Use community.dns.remove_registrable_domain instead.
+        removal_version: 2.0.0
+    get_domain_suffix:
+      deprecation:
+        warning_text: The felixfontein.tools.get_domain_suffix filter plugin is deprecated. Use community.dns.get_public_suffix instead.
+        removal_version: 2.0.0
+    registrable_domain:
+      deprecation:
+        warning_text: The felixfontein.tools.registrable_domain filter plugin is deprecated. Use community.dns.get_registrable_domain instead.
+        removal_version: 2.0.0
+    remove_domain_suffix:
+      deprecation:
+        warning_text: The felixfontein.tools.remove_domain_suffix filter plugin is deprecated. Use community.dns.remove_public_suffix instead.
+        removal_version: 2.0.0
+  lookup:
+    dependent:
+      deprecation:
+        warning_text: The felixfontein.tools.dependent lookup is deprecated. Use community.general.dependent instead.
+        removal_version: 2.0.0
+  modules:
+    wait_for_txt:
+      deprecation:
+        warning_text: The felixfontein.tools.wait_for_txt module is deprecated. Use community.dns.wait_for_txt instead.
+        removal_version: 2.0.0
+  test:
+    is_registrable_domain:
+      deprecation:
+        warning_text: The felixfontein.tools.is_registrable_domain test plugin is deprecated. Use filters from community.dns instead.
+        removal_version: 2.0.0

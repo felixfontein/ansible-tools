@@ -1,0 +1,6 @@
+release_summary: Deprecation release.
+deprecated_features:
+  - This collection is deprecated. Please use `community.dns <https://galaxy.ansible.com/community/dns>`_ and
+    `community.general <https://galaxy.ansible.com/community/general>`_ instead, which are both included
+    in Ansible 4+. They contains improved versions of the plugins and modules of this collection and receive
+    updates.

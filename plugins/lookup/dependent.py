@@ -8,6 +8,10 @@ DOCUMENTATION = """
 lookup: dependent
 short_description: Composes a list with nested elements of other lists or dicts which can depend on previous indices
 version_added: 1.0.0
+deprecated:
+    why: This collection is no longer updated.
+    alternative: Use community.general.dependent instead.
+    removed_in: 2.0.0
 description:
   - "Takes the input lists and returns a list with elements that are lists, dictionaries,
      or template expressions which evaluate to lists or dicts, composed of the elements of

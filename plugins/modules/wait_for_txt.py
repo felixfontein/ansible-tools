@@ -13,6 +13,10 @@ DOCUMENTATION = r'''
 module: wait_for_txt
 short_description: Wait for TXT entries to be available on all authoritative nameservers
 version_added: 1.4.0
+deprecated:
+    why: This collection is no longer updated.
+    alternative: Use community.dns.wait_for_txt instead.
+    removed_in: 2.0.0
 description:
     - Wait for TXT entries with specific values to show up on B(all) authoritative nameservers for the DNS name.
 author:
